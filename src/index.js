@@ -1,57 +1,7 @@
-// // Importation des modules nécessaires
-// const connectDB = require('./config/database');
-// const SurveyModule = require('./modules/surveyModule');
-// const QuestionModule = require('./modules/questionModule');
-// const ResponseModule = require('./modules/responseModule');
-
-// // Fonction principale asynchrone
-// async function main() {
-//     try {
-//         // Connexion à la base de données
-//         console.log("Tentative de connexion à MongoDB...");
-//         const db = await connectDB();
-//         console.log("Connexion réussie à MongoDB !");
-
-//         // Initialisation des modules
-//         const surveyModule = new SurveyModule(db);
-//         const questionModule = new QuestionModule(db);
-//         const responseModule = new ResponseModule(db);
-
-//         // Exemple d'utilisation des modules
-//         // Création d'une nouvelle enquête
-//         const newSurveyId = await surveyModule.createSurvey({
-//             name: "Nouvelle Enquête",
-//             description: "Une description de la nouvelle enquête",
-//             createdAt: new Date(),
-//             createdBy: {
-//                 employeeName: "John Doe",
-//                 employeeRole: "Analyste de données"
-//             }
-//         });
-//         console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
-
-//         // Ajout d'une question à l'enquête
-//         const newQuestionId = await questionModule.createQuestion({
-//             surveyId: newSurveyId,
-//             title: "Quelle est votre opinion sur notre service ?",
-//             type: "text"
-//         });
-//         console.log(`Nouvelle question créée avec l'ID : ${newQuestionId}`);
-
-//         // Vous pouvez ajouter d'autres exemples d'utilisation ici
-
-//     } catch (error) {
-//         console.error("Une erreur est survenue :", error);
-//     }
-// }
-
-// // Exécution de la fonction principale
-// main().then(() => console.log("Programme terminé."));
-
 const connectDB = require('./config/database');
-const { createSurvey, getSurveyById } = require('./modules/surveyModule');
-const { createQuestion, getQuestionById } = require('./modules/questionModule');
-const { createResponse, getResponseById } = require('./modules/responseModule');
+const { createSurvey, getSurveyById, getAllSurveys } = require('./modules/surveyModule');
+const { createQuestion, getQuestionById, getQuestionsBySurveyId } = require('./modules/questionModule');
+const { createResponse, getResponseById, getResponsesByQuestionId } = require('./modules/responseModule');
 
 async function main() {
     try {
@@ -59,48 +9,96 @@ async function main() {
         const db = await connectDB();
         console.log("Connexion réussie à MongoDB !");
 
-        // Création d'une nouvelle enquête
-        const surveyData = {
-            name: "Nouvelle Enquête",
-            description: "Une description de la nouvelle enquête",
-            createdAt: new Date(),
-            createdBy: {
-                employeeName: "John Doe",
-                employeeRole: "Analyste de données"
-            }
+        // JSON Data (simulate a JSON file read)
+        const surveyJsonData = {
+            "surveys": [
+                {
+                    "name": "Enquête de Satisfaction 001",
+                    "description": "Enquête visant à évaluer la satisfaction des clients concernant nos services.",
+                    "createdAt": "2024-07-25T08:00:00Z",
+                    "createdBy": {
+                        "employeeName": "Jane Smith",
+                        "employeeRole": "Responsable du service client"
+                    },
+                    "questions": [
+                        {
+                            "title": "Comment évalueriez-vous notre service ?",
+                            "type": "rating",
+                            "options": {
+                                "minValue": 1,
+                                "maxValue": 5,
+                                "step": 1
+                            },
+                            "answers": [
+                                { "title": "Très satisfait" },
+                                { "title": "Satisfait" },
+                                { "title": "Neutre" },
+                                { "title": "Insatisfait" },
+                                { "title": "Très insatisfait" }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
 
-        let newSurveyId;
-        const existingSurvey = await getSurveyById(db, surveyData._id);
-        if (!existingSurvey) {
-            newSurveyId = await createSurvey(db, surveyData);
-            console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
-        } else {
-            newSurveyId = existingSurvey._id;
-            console.log("L'enquête existe déjà, aucune insertion effectuée.");
+        // Insertion des données dans la base de données
+        for (const survey of surveyJsonData.surveys) {
+            let newSurveyId = await createSurvey(db, {
+                name: survey.name,
+                description: survey.description,
+                createdAt: new Date(survey.createdAt),
+                createdBy: survey.createdBy
+            });
+            console.log(`Enquête créée avec l'ID : ${newSurveyId}`);
+
+            for (const question of survey.questions) {
+                let newQuestionId = await createQuestion(db, {
+                    surveyId: newSurveyId,
+                    title: question.title,
+                    type: question.type,
+                    options: question.options
+                });
+                console.log(`Question créée avec l'ID : ${newQuestionId}`);
+
+                if (question.answers) {
+                    for (const answer of question.answers) {
+                        let newAnswerId = await createResponse(db, {
+                            questionId: newQuestionId,
+                            answer: answer.title,
+                            createdAt: new Date()
+                        });
+                        console.log(`Réponse créée avec l'ID : ${newAnswerId}`);
+                    }
+                }
+            }
         }
 
-        // Ajout d'une question à l'enquête
-        const newQuestionId = await createQuestion(db, {
-            surveyId: newSurveyId,
-            title: "Quelle est votre opinion sur notre service ?",
-            type: "text"
-        });
-        console.log(`Nouvelle question créée avec l'ID : ${newQuestionId}`);
+        // Récupération et affichage des résultats
+        console.log("\nAffichage des résultats insérés :\n");
 
-        // Ajout d'une réponse à la question
-        const newResponseId = await createResponse(db, {
-            questionId: newQuestionId,
-            respondent: "Jane Doe",
-            answer: "Le service est excellent.",
-            createdAt: new Date()
-        });
-        console.log(`Nouvelle réponse créée avec l'ID : ${newResponseId}`);
+        const surveys = await getAllSurveys(db);
+        for (const survey of surveys) {
+            console.log(`Enquête : ${survey.name}`);
+            console.log(`Description : ${survey.description}`);
+            console.log(`Créée par : ${survey.createdBy.employeeName} (${survey.createdBy.employeeRole})`);
 
-        // Vous pouvez ajouter d'autres exemples d'utilisation ici
+            const questions = await getQuestionsBySurveyId(db, survey._id);
+            for (const question of questions) {
+                console.log(`  Question : ${question.title}`);
+                console.log(`  Type : ${question.type}`);
+
+                const responses = await getResponsesByQuestionId(db, question._id);
+                for (const response of responses) {
+                    console.log(`    Réponse : ${response.answer}`);
+                }
+            }
+        }
 
     } catch (error) {
         console.error("Une erreur est survenue :", error);
+    } finally {
+        process.exit();
     }
 }
 

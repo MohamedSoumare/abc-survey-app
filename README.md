@@ -17,7 +17,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
 1. **Clonez le repository :**
 
    ```
-   git clone https://github.com/votre-nom-utilisateur/systeme-gestion-enquetes.git
+   git clone https://github.com/MohamedSoumare/abc-survey-app.git
    
    ```
 2. **Naviguez dans le répertoire du projet :**
@@ -74,18 +74,71 @@ L'application se connectera à MongoDB et exécutera un exemple de création d'e
 
 ## Développement
 ### Modules
-- `surveyModule.js` : Gère les opérations CRUD pour les enquêtes
-- `questionModule.js` : Gère les opérations CRUD pour les questions
-- `responseModule.js` : Gère les opérations CRUD pour les réponses
+#### surveyModule.js
+Gère les opérations CRUD pour les enquêtes.
 
-Chaque module expose des méthodes pour interagir avec la base de données MongoDB.
+- `createSurvey(surveyData)` : Insère une nouvelle enquête dans la collection surveys. Retourne l'ID de l'enquête créée.
+- `getSurveyById(surveyId)` : Récupère une enquête par son ID. Retourne un objet représentant l'enquête.
+- `getAllSurveys()` : Récupère toutes les enquêtes. Retourne un tableau contenant les enquêtes.
+- `updateSurvey(surveyId, updateData)` : Met à jour une enquête spécifique par son ID avec les données fournies. Retourne le nombre de documents modifiés.
+- `deleteSurvey(surveyId)` : Supprime une enquête par son ID. Retourne le nombre de documents supprimés.
+
+#### questionModule.js
+Gère les opérations CRUD pour les questions.
+
+- `createQuestion(questionData)` : Insère une nouvelle question dans la collection questions. Retourne l'ID de la question créée.
+- `getQuestionById(questionId)` : Récupère une question par son ID. Retourne un objet représentant la question.
+- `getQuestionsBySurveyId(surveyId)` : Récupère toutes les questions associées à une enquête spécifique. Retourne un tableau contenant les questions.
+- `updateQuestion(questionId, updateData)` : Met à jour une question spécifique par son ID avec les données fournies. Retourne le nombre de documents modifiés.
+- `deleteQuestion(questionId)` : Supprime une question par son ID. Retourne le nombre de documents supprimés.
+
+#### responseModule.js
+Gère les opérations CRUD pour les réponses.
+
+- `createResponse(responseData)` : Insère une nouvelle réponse dans la collection answers. Retourne l'ID de la réponse créée.
+- `getResponseById(responseId)` : Récupère une réponse par son ID. Retourne un objet représentant la réponse.
+- `getResponsesByQuestionId(questionId)` : Récupère toutes les réponses associées à une question spécifique. Retourne un tableau contenant les réponses.
+- `updateResponse(responseId, updateData)` : Met à jour une réponse spécifique par son ID avec les données fournies. Retourne le nombre de documents modifiés.
+- `deleteResponse(responseId)` : Supprime une réponse par son ID. Retourne le nombre de documents supprimés.
+
+
+### Exemple d'utilisation d'un module
+```javascript
+const SurveyModule = require('./modules/surveyModule');
+const db = await connectDB();
+const surveyModule = new SurveyModule(db);
+
+const newSurveyId = await surveyModule.createSurvey({
+  name: "Nouvelle Enquête",
+  description: "Description de l'enquête",
+  createdAt: new Date(),
+  createdBy: {
+    employeeName: "John Doe",
+    employeeRole: "Analyste"
+  }
+});
+
+console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
+
+// Récupérer l'enquête créée
+const createdSurvey = await surveyModule.getSurveyById(newSurveyId);
+console.log("Enquête créée :", createdSurvey);
+
+// Mettre à jour l'enquête
+const updateResult = await surveyModule.updateSurvey(newSurveyId, {
+  description: "Description mise à jour de l'enquête"
+});
+console.log(`Nombre de documents mis à jour : ${updateResult}`);
+
+// Supprimer l'enquête
+const deleteResult = await surveyModule.deleteSurvey(newSurveyId);
+console.log(`Nombre de documents supprimés : ${deleteResult}`);
+```
 
 ## Contact
 Mohamed Bakary Soumaré - soumare17763@gmail.com
 
-Lien du projet : [https://github.com/votre-nom-utilisateur/systeme-gestion-enquetes](https://github.com/votre-nom-utilisateur/systeme-gestion-enquetes)
-
-
+Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
 ## Authors
 
 ABC Corporation

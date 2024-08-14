@@ -1,7 +1,27 @@
 const { ObjectId } = require('mongodb');
 
+async function getNextSurveyId(db) {
+    const collection = db.collection('surveys');
+    const lastSurvey = await collection.find().sort({ surveyId: -1 }).limit(1).toArray();
+    if (lastSurvey.length > 0) {
+        return lastSurvey[0].surveyId + 1;
+    } else {
+        return 1;
+    }
+}
+
 async function createSurvey(db, surveyData) {
     const collection = db.collection('surveys');
+    const newSurveyId = await getNextSurveyId(db);
+
+    // Vérifier si l'identifiant existe déjà
+    const existingSurvey = await collection.findOne({ surveyId: newSurveyId });
+    if (existingSurvey) {
+        console.log(`L'enquête avec l'ID ${newSurveyId} existe déjà. Aucun ajout effectué.`);
+        return null;
+    }
+
+    surveyData.surveyId = newSurveyId; 
     return collection.insertOne(surveyData).then(result => result.insertedId);
 }
 
@@ -15,12 +35,12 @@ async function getAllSurveys(db) {
     return collection.find({}).toArray();
 }
 
-async function updateSurvey(db, surveyId, updateData) {
+// modules/surveyModule.js
+
+async function updateSurvey(db, surveyId, updatedData) {
     const collection = db.collection('surveys');
-    return collection.updateOne(
-        { _id: new ObjectId(surveyId) },
-        { $set: updateData }
-    ).then(result => result.modifiedCount);
+    const result = await collection.updateOne({ _id: surveyId }, { $set: updatedData });
+    return result.modifiedCount;
 }
 
 async function deleteSurvey(db, surveyId) {
@@ -29,10 +49,11 @@ async function deleteSurvey(db, surveyId) {
         .then(result => result.deletedCount);
 }
 
+
 module.exports = {
     createSurvey,
-    getSurveyById,
     getAllSurveys,
+    deleteSurvey,
     updateSurvey,
-    deleteSurvey
 };
+

@@ -7,7 +7,7 @@ async function connectDB() {
     try {
         console.log("Tentative de connexion à MongoDB...");
         await client.connect();
-        const db = client.db('surveys_app'); 
+        const db = client.db('survey_app'); 
         return db;
     } catch (error) {
         console.error("Erreur de connexion à MongoDB :", error);

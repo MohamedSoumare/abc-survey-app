@@ -1,7 +1,7 @@
 const connectDB = require('./config/database');
-const { createSurvey, getSurveyById, getAllSurveys } = require('./modules/surveyModule');
-const { createQuestion, getQuestionById, getQuestionsBySurveyId } = require('./modules/questionModule');
-const { createResponse, getResponseById, getResponsesByQuestionId } = require('./modules/responseModule');
+const { createSurvey, getAllSurveys, deleteSurvey, updateSurvey } = require('./modules/surveyModule');
+const { createQuestion, getQuestionsBySurveyId } = require('./modules/questionModule');
+const { createResponse, getResponsesByQuestionId } = require('./modules/responseModule');
 
 async function main() {
     try {
@@ -43,32 +43,36 @@ async function main() {
         };
 
         // Insertion des données dans la base de données
+        let newSurveyId = null;
         for (const survey of surveyJsonData.surveys) {
-            let newSurveyId = await createSurvey(db, {
+            newSurveyId = await createSurvey(db, {
                 name: survey.name,
                 description: survey.description,
                 createdAt: new Date(survey.createdAt),
                 createdBy: survey.createdBy
             });
-            console.log(`Enquête créée avec l'ID : ${newSurveyId}`);
 
-            for (const question of survey.questions) {
-                let newQuestionId = await createQuestion(db, {
-                    surveyId: newSurveyId,
-                    title: question.title,
-                    type: question.type,
-                    options: question.options
-                });
-                console.log(`Question créée avec l'ID : ${newQuestionId}`);
+            if (newSurveyId) {
+                console.log(`Enquête créée avec l'ID : ${newSurveyId}`);
 
-                if (question.answers) {
-                    for (const answer of question.answers) {
-                        let newAnswerId = await createResponse(db, {
-                            questionId: newQuestionId,
-                            answer: answer.title,
-                            createdAt: new Date()
-                        });
-                        console.log(`Réponse créée avec l'ID : ${newAnswerId}`);
+                for (const question of survey.questions) {
+                    let newQuestionId = await createQuestion(db, {
+                        surveyId: newSurveyId,
+                        title: question.title,
+                        type: question.type,
+                        options: question.options
+                    });
+                    console.log(`Question créée avec l'ID : ${newQuestionId}`);
+
+                    if (question.answers) {
+                        for (const answer of question.answers) {
+                            let newAnswerId = await createResponse(db, {
+                                questionId: newQuestionId,
+                                answer: answer.title,
+                                createdAt: new Date()
+                            });
+                            console.log(`Réponse créée avec l'ID : ${newAnswerId}`);
+                        }
                     }
                 }
             }
@@ -93,6 +97,27 @@ async function main() {
                     console.log(`    Réponse : ${response.answer}`);
                 }
             }
+        }
+
+        // Modification de l'enquête
+        if (newSurveyId) {
+            const updatedSurveyData = {
+                name: "Enquête de Satisfaction du client 1",
+                description: "Enquête modifiée pour tester la fonctionnalité de mise à jour.",
+                createdBy: {
+                    employeeName: "John Doe",
+                    employeeRole: "Directeur du service client"
+                }
+            };
+
+            const updateResult = await updateSurvey(db, newSurveyId, updatedSurveyData);
+            console.log(`\nEnquête mise à jour avec succès. Nombre de documents modifiés : ${updateResult}`);
+        }
+
+        //Suppression de l'enquête
+        if (newSurveyId) {
+            const deleteResult = await deleteSurvey(db, newSurveyId);
+            console.log(`\nEnquête supprimée avec l'ID : ${newSurveyId}, Nombre de documents supprimés : ${deleteResult}`);
         }
 
     } catch (error) {

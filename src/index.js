@@ -9,7 +9,7 @@ async function main() {
         const db = await connectDB();
         console.log("Connexion réussie à MongoDB !");
 
-        // JSON Data (simulate a JSON file read)
+        // JSON Data
         const surveyJsonData = {
             "surveys": [
                 {

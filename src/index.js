@@ -1,7 +1,7 @@
 const connectDB = require('./config/database');
-const { createSurvey, getSurveyById, updateSurvey, deleteSurvey } = require('./modules/surveyModule');
-const { createQuestion, updateQuestion } = require('./modules/questionModule');
-const { createResponse, updateResponse } = require('./modules/responseModule');
+const { createSurvey } = require('./modules/surveyModule');
+const { createQuestion} = require('./modules/questionModule');
+const { createResponse} = require('./modules/responseModule');
 
 async function main() {
     try {

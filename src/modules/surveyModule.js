@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 
-// Fonction pour obtenir le prochain ID d'enquête
+
 async function getNextSurveyId(db) {
     const collection = db.collection('surveys');
     const lastSurvey = await collection.find().sort({ surveyId: -1 }).limit(1).toArray();
@@ -11,38 +11,53 @@ async function getNextSurveyId(db) {
     }
 }
 
-// Fonction pour créer une nouvelle enquête
 async function createSurvey(db, surveyData) {
     const collection = db.collection('surveys');
-    const newSurveyId = await getNextSurveyId(db);
 
-    surveyData.surveyId = newSurveyId; 
-    return collection.insertOne(surveyData).then(result => result.insertedId);
+    // Vérifier si une enquête avec cet ID existe déjà
+    const existingSurvey = await collection.findOne({ surveyId: surveyData.surveyId });
+    if (existingSurvey) {
+        console.log(`Une enquête avec l'ID ${surveyData.surveyId} existe déjà.`);
+        return null; 
+    }
+
+    const newSurveyId = await getNextSurveyId(db);
+    surveyData.surveyId = newSurveyId;
+
+    const result = await collection.insertOne(surveyData);
+    console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
+    return result.insertedId;
 }
 
-// Fonction pour obtenir une enquête par ID
 async function getSurveyById(db, surveyId) {
     const collection = db.collection('surveys');
-    return collection.findOne({ surveyId: surveyId });
+    const survey = await collection.findOne({ surveyId: surveyId });
+
+    if (!survey) {
+        console.log(`Aucune enquête trouvée avec l'ID : ${surveyId}`);
+        return null;
+    }
+
+    console.log(`Enquête trouvée avec l'ID : ${surveyId}`);
+    return survey;
 }
 
-// Fonction pour obtenir toutes les enquêtes
 async function getAllSurveys(db) {
     const collection = db.collection('surveys');
     return collection.find({}).toArray();
 }
 
-// Fonction pour mettre à jour une enquête
 async function updateSurvey(db, surveyId, updatedData) {
     const collection = db.collection('surveys');
     const result = await collection.updateOne({ surveyId: surveyId }, { $set: updatedData });
     return result.modifiedCount;
 }
 
-// Fonction pour supprimer une enquête
 async function deleteSurvey(db, surveyId) {
     const collection = db.collection('surveys');
-    return collection.deleteOne({ surveyId: surveyId }).then(result => result.deletedCount);
+    // return collection.deleteOne({ surveyId: surveyId }).then(result => result.deletedCount);
+    const result = await collection.deleteOne({ surveyId: surveyId });
+    return result.deletedCount;    
 }
 
 module.exports = {

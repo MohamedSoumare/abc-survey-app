@@ -1,5 +1,6 @@
 const connectDB = require('./config/database');
-const { createSurvey, getAllSurveys, updateSurvey, deleteSurvey } = require('./modules/surveyModule');
+const { createSurvey, getSurveyById,updateSurvey, deleteSurvey } = require('./modules/surveyModule');
+
 
 async function main() {
     try {
@@ -7,29 +8,48 @@ async function main() {
         const db = await connectDB();
         console.log("Connexion réussie à MongoDB !");
 
-        // création d'une enquête
+        // Création d'une nouvelle enquête
         const newSurveyId = await createSurvey(db, {
             name: "Enquête de Satisfaction 001",
             description: "Enquête visant à évaluer la satisfaction des clients concernant nos services.",
             createdAt: new Date(),
             createdBy: {
-                employeeName: "John Doe",
+                employeeName: "Mohmaed Diop",
                 employeeRole: "Analyste"
             }
         });
-        console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
 
-        // récupération de toutes les enquêtes
-        const surveys = await getAllSurveys(db);
-        console.log("Toutes les enquêtes : ", surveys);
 
-        // mise à jour d'une enquête
-        const updatedCount = await updateSurvey(db, newSurveyId, { name: "Enquête Modifiée" });
-        console.log(`${updatedCount} enquête(s) mise(s) à jour.`);
+        // Récupération d'une enquête par ID
+        const surveyIdToFind = 1;
+        const survey = await getSurveyById(db, surveyIdToFind);
 
-        // suppression d'une enquête
-        const deletedCount = await deleteSurvey(db, newSurveyId);
-        console.log(`${deletedCount} enquête(s) supprimée(s).`);
+        if (!survey) {
+            console.log(`Enquête avec l'ID ${surveyIdToFind} non trouvée.`);
+        } else {
+            console.log("Enquête trouvée : ", survey);
+        }
+
+        // Mise à jour d'une enquête
+        const updatedSurveyId = 1; 
+        const updateData = { name: "Enquête Modifiée Pour Aujourd'hui", description: "Nouvelle Enquête visant à évaluer la satisfaction des clients concernant nos services."};
+
+        const updateCount = await updateSurvey(db, updatedSurveyId, updateData);
+        if (updateCount > 0) {
+            console.log(`${updateCount} enquête(s) mise(s) à jour avec succès.`);
+        } else {
+            console.log(`Aucune enquête mise à jour pour l'ID : ${updatedSurveyId}`);
+        }
+
+        // Suppression d'une enquête
+        const surveyIdToDelete = 1; 
+        const deleteCount = await deleteSurvey(db, surveyIdToDelete);
+
+        if (deleteCount > 0) {
+            console.log(`Enquête avec l'ID ${surveyIdToDelete} supprimée avec succès.`);
+        } else {
+            console.log(`Aucune enquête trouvée pour suppression avec l'ID : ${surveyIdToDelete}`);
+        }
 
     } catch (error) {
         console.error("Une erreur est survenue :", error);

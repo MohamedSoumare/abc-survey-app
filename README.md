@@ -77,7 +77,7 @@ L'application se connectera à MongoDB et exécutera un exemple de création d'e
 #### surveyModule.js
 Gère les opérations CRUD pour les enquêtes.
 
-- `createSurvey(surveyData)` : Insère une nouvelle enquête dans la collection surveys. Retourne l'ID de l'enquête créée.
+- `createSurvey(surveyData)` :Insère une nouvelle enquête dans la collection surveys. Retourne l'ID de l'enquête créée.
 - `getSurveyById(surveyId)` : Récupère une enquête par son ID. Retourne un objet représentant l'enquête.
 - `getAllSurveys()` : Récupère toutes les enquêtes. Retourne un tableau contenant les enquêtes.
 - `updateSurvey(surveyId, updateData)` : Met à jour une enquête spécifique par son ID avec les données fournies. Retourne le nombre de documents modifiés.
@@ -100,40 +100,6 @@ Gère les opérations CRUD pour les réponses.
 - `getResponsesByQuestionId(questionId)` : Récupère toutes les réponses associées à une question spécifique. Retourne un tableau contenant les réponses.
 - `updateResponse(responseId, updateData)` : Met à jour une réponse spécifique par son ID avec les données fournies. Retourne le nombre de documents modifiés.
 - `deleteResponse(responseId)` : Supprime une réponse par son ID. Retourne le nombre de documents supprimés.
-
-
-### Exemple d'utilisation d'un module
-```javascript
-const SurveyModule = require('./modules/surveyModule');
-const db = await connectDB();
-const surveyModule = new SurveyModule(db);
-
-const newSurveyId = await surveyModule.createSurvey({
-  name: "Nouvelle Enquête",
-  description: "Description de l'enquête",
-  createdAt: new Date(),
-  createdBy: {
-    employeeName: "John Doe",
-    employeeRole: "Analyste"
-  }
-});
-
-console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
-
-// Récupérer l'enquête créée
-const createdSurvey = await surveyModule.getSurveyById(newSurveyId);
-console.log("Enquête créée :", createdSurvey);
-
-// Mettre à jour l'enquête
-const updateResult = await surveyModule.updateSurvey(newSurveyId, {
-  description: "Description mise à jour de l'enquête"
-});
-console.log(`Nombre de documents mis à jour : ${updateResult}`);
-
-// Supprimer l'enquête
-const deleteResult = await surveyModule.deleteSurvey(newSurveyId);
-console.log(`Nombre de documents supprimés : ${deleteResult}`);
-```
 
 ## Contact
 Mohamed Bakary Soumaré - soumare17763@gmail.com

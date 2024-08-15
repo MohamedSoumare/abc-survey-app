@@ -65,7 +65,7 @@ Pour démarrer l'application, exécutez la commande suivante :
 npm start
 ```
 
-L'application se connectera à MongoDB et exécutera un exemple de création d'enquête et de question.
+L'application se connectera à MongoDB et exécutera un exemple de création d'enquête, de question et response.
 
 ## Fonctionnalités
 
@@ -168,6 +168,6 @@ Mohamed Bakary Soumaré - soumare17763@gmail.com
 
 Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
 
-## Authors
+## Author
 
-ABC Corporation
+- [Mohamed Bakary Soumaré](https://github.com/MohamedSoumare/)

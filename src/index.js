@@ -66,8 +66,8 @@ async function main() {
         // création d'une réponse
         const newResponse = {
             questionId: questionId, 
-            surveyId: surveyId, 
-            answer: '1',
+            surveyId: surveyId,
+            title: 'Très satisfait', 
             created_at: new Date(),
         };
         const responseId = await createResponse(db, newResponse);

@@ -1,63 +1,94 @@
-const { ObjectId } = require('mongodb');
-
+function getSurveysCollection(db) {
+    if (!db) {
+        throw new Error("La connexion à la base de données n'est pas établie.");
+    }
+    return db.collection('surveys');
+}
 
 async function getNextSurveyId(db) {
-    const collection = db.collection('surveys');
-    const lastSurvey = await collection.find().sort({ surveyId: -1 }).limit(1).toArray();
-    if (lastSurvey.length > 0) {
-        return lastSurvey[0].surveyId + 1;
-    } else {
-        return 1;
+    try {
+        const collection = getSurveysCollection(db);
+        const lastSurvey = await collection.find().sort({ surveyId: -1 }).limit(1).toArray();
+        return lastSurvey.length > 0 ? lastSurvey[0].surveyId + 1 : 1;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération du prochain ID d'enquête : ${error.message}`);
     }
 }
 
 async function createSurvey(db, surveyData) {
-    const collection = db.collection('surveys');
+    try {
+        const collection = getSurveysCollection(db);
+        const newSurveyId = await getNextSurveyId(db);
+        surveyData.surveyId = newSurveyId;
 
-    // Vérifier si une enquête avec cet ID existe déjà
-    const existingSurvey = await collection.findOne({ surveyId: surveyData.surveyId });
-    if (existingSurvey) {
-        console.log(`Une enquête avec l'ID ${surveyData.surveyId} existe déjà.`);
-        return null; 
+        const result = await collection.insertOne(surveyData);
+        console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
+        return newSurveyId; 
+    } catch (error) {
+        throw new Error(`Erreur lors de la création de l'enquête : ${error.message}`);
     }
-
-    const newSurveyId = await getNextSurveyId(db);
-    surveyData.surveyId = newSurveyId;
-
-    const result = await collection.insertOne(surveyData);
-    console.log(`Nouvelle enquête créée avec l'ID : ${newSurveyId}`);
-    return result.insertedId;
 }
 
 async function getSurveyById(db, surveyId) {
-    const collection = db.collection('surveys');
-    const survey = await collection.findOne({ surveyId: surveyId });
+    try {
+        const collection = getSurveysCollection(db);
+        const survey = await collection.findOne({ surveyId }); 
 
-    if (!survey) {
-        console.log(`Aucune enquête trouvée avec l'ID : ${surveyId}`);
-        return null;
+        if (!survey) {
+            throw new Error(`Aucune enquête trouvée avec l'ID : ${surveyId}`);
+        }
+
+        console.log(`Enquête trouvée avec l'ID : ${surveyId}`);
+        return survey;
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération de l'enquête : ${error.message}`);
     }
-
-    console.log(`Enquête trouvée avec l'ID : ${surveyId}`);
-    return survey;
 }
 
 async function getAllSurveys(db) {
-    const collection = db.collection('surveys');
-    return collection.find({}).toArray();
+    try {
+        const collection = getSurveysCollection(db);
+        return await collection.find({}).toArray();
+    } catch (error) {
+        throw new Error(`Erreur lors de la récupération de toutes les enquêtes : ${error.message}`);
+    }
 }
 
 async function updateSurvey(db, surveyId, updatedData) {
-    const collection = db.collection('surveys');
-    const result = await collection.updateOne({ surveyId: surveyId }, { $set: updatedData });
-    return result.modifiedCount;
+    try {
+        const collection = getSurveysCollection(db);
+
+        const result = await collection.updateOne(
+            { surveyId },
+            { $set: updatedData }
+        );
+
+        if (result.modifiedCount === 0) {
+            throw new Error(`Aucune enquête trouvée avec l'ID : ${surveyId}`);
+        }
+
+        console.log(`Enquête avec l'ID ${surveyId} mise à jour.`);
+        return result.modifiedCount;
+    } catch (error) {
+        throw new Error(`Erreur lors de la mise à jour de l'enquête : ${error.message}`);
+    }
 }
 
 async function deleteSurvey(db, surveyId) {
-    const collection = db.collection('surveys');
-    // return collection.deleteOne({ surveyId: surveyId }).then(result => result.deletedCount);
-    const result = await collection.deleteOne({ surveyId: surveyId });
-    return result.deletedCount;    
+    try {
+        const collection = getSurveysCollection(db);
+
+        const result = await collection.deleteOne({ surveyId });
+
+        if (result.deletedCount === 0) {
+            throw new Error(`Aucune enquête trouvée avec l'ID : ${surveyId}`);
+        }
+
+        console.log(`Enquête avec l'ID ${surveyId} supprimée.`);
+        return result.deletedCount;
+    } catch (error) {
+        throw new Error(`Erreur lors de la suppression de l'enquête : ${error.message}`);
+    }
 }
 
 module.exports = {

@@ -79,7 +79,7 @@ L'application se connectera à MongoDB et exécutera un exemple de création d'e
 #### surveyModule.js
 Gère les opérations CRUD pour les enquêtes.
 
-- `createSurvey(db, surveyData)`
+- `createSurvey(db, surveyData)` : 
   - `db`: L'objet de connexion à la base de données MongoDB.
   - `surveyData`: Un objet contenant les détails de l'enquête (nom, description, date de création, créateur).
   - Retourne: L'ID de l'enquête créée.
@@ -161,6 +161,34 @@ Gère les opérations CRUD pour les réponses.
   - `db`: L'objet de connexion à la base de données MongoDB.
   - `responseId`: L'ID de la réponse à supprimer (ObjectId).
   - Retourne: Le nombre de documents supprimés.
+
+
+### Structure des Objets
+
+#### Objet surveyModule
+- `surveyId` (Number): Identifiant unique
+- `name` (String): Nom de l'enquête
+- `description` (String): Description
+- `createdAt` (Date): Date de création
+- `createdBy` (Object):
+  - `employeeName` (String): Nom de l'employé créateur
+  - `employeeRole` (String): Rôle de l'employé
+
+#### Objet questionModule
+- `questionId` (Number): Identifiant unique
+- `surveyId` (Number): ID de l'enquête parente
+- `title` (String): Énoncé de la question
+- `type` (String): Type de question (ex: "rating")
+- `options` (Object): Options spécifiques
+  - Pour type "rating":
+    - `minValue` (Number): Valeur minimale
+    - `maxValue` (Number): Valeur maximale
+    - `step` (Number): Pas entre les valeurs
+
+#### Objet responseModule
+- `responseId` (Number): Identifiant unique
+- `questionId` (Number): ID de la question associée
+- `title` (String): Contenu de la réponse
 
 
 ## Contact

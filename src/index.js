@@ -43,6 +43,7 @@ async function main() {
         await updateQuestion(1, updatedQuestionData);
         //Suppression d'une question
         await deleteQuestion(1);
+
         // Création d'une réponse
         const newResponse = {
             surveyId: 1,

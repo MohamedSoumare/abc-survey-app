@@ -83,7 +83,7 @@ Gère les opérations CRUD pour les enquêtes.
   -Permet de Créer une nouvelle enquête avec des détails comme le titre, la description, la date de création, et l'employé responsable.
   - Retourne: L'ID de l'enquête créer.
 
-- `getSurveyById(surveyId)`
+- `getSurveyById(surveyId: int)`
   - Permet récupère les détails d'une enquête spécifique en utilisant son ID.
   - Retourne: L'objet représentant l'enquête ou affiche une message si non trouvé.
 

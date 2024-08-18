@@ -74,122 +74,63 @@ L'application se connectera à MongoDB et exécutera un exemple de création d'e
 - Gestion des réponses (création, lecture, mise à jour, suppression)
 
 ## Développement
-### Modules
+### Modules et type des Objets
 
 #### surveyModule.js
 Gère les opérations CRUD pour les enquêtes.
 
-- `createSurvey(db, surveyData)` : 
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `surveyData`: Un objet contenant les détails de l'enquête (nom, description, date de création, créateur).
-  - Retourne: L'ID de l'enquête créée.
+- `createSurvey({surveyId: int, name: string, description: string, createdAt: date}, createdBy:{employeeName: string, employeeRole: string})` 
+  -Permet de Créer une nouvelle enquête avec des détails comme le titre, la description, la date de création, et l'employé responsable.
+  - Retourne: L'ID de l'enquête créer.
 
-- `getSurveyById(db, surveyId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `surveyId`: L'ID numérique de l'enquête à récupérer.
-  - Retourne: L'objet représentant l'enquête ou null si non trouvé.
+- `getSurveyById(surveyId)`
+  - Permet récupère les détails d'une enquête spécifique en utilisant son ID.
+  - Retourne: L'objet représentant l'enquête ou affiche une message si non trouvé.
 
-- `getAllSurveys(db)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - Retourne: Un tableau contenant toutes les enquêtes.
-
-- `updateSurvey(db, surveyId, updatedData)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `surveyId`: L'ID numérique de l'enquête à mettre à jour.
-  - `updatedData`: Un objet contenant les champs à mettre à jour.
+- `updateSurvey(surveyId: int)`
+  - Permet de mettre à jour l'enquête d'une doccument existant en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
 
-- `deleteSurvey(db, surveyId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `surveyId`: L'ID numérique de l'enquête à supprimer.
+- `deleteSurvey(surveyId: int)`
+  - Permet de supprimer une enquête à partir de son ID.
   - Retourne: Le nombre de documents supprimés.
 
 #### questionModule.js
 Gère les opérations CRUD pour les questions.
 
-- `createQuestion(db, questionData)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `questionData`: Un objet contenant les détails de la question (ID de l'enquête, titre, type, options).
-  - Retourne: L'ID de la question créée.
+- `createQuestion({questionId: int, surveyId: int, title: string, type: string, option: int})`
+  - Permet de créer une nouvelle question en ajoutant à une enquête existante avec les informations nécessaires, telles que le titre de la question, le type de question, etc.
+  - Retourne: L'ID de la question créée ou affiche une message si non trouvé.
 
-- `getQuestionById(db, questionId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `questionId`: L'ID de la question à récupérer (ObjectId).
-  - Retourne: L'objet représentant la question.
+- `getQuestionById(questionId: int)`
+  - Permet lire les détails d'une question spécifique en utilisant son ID.
 
-- `getQuestionsBySurveyId(db, surveyId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `surveyId`: L'ID de l'enquête dont on veut récupérer les questions (ObjectId).
-  - Retourne: Un tableau contenant toutes les questions de l'enquête.
-
-- `updateQuestion(db, questionId, updateData)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `questionId`: L'ID de la question à mettre à jour (ObjectId).
-  - `updateData`: Un objet contenant les champs à mettre à jour.
+- `updateQuestion(questionId: int, {surveyId: int, name: string, type: string, option: int})`
+  - Permet de mettre à jour  une question existante d'un doccument en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
 
-- `deleteQuestion(db, questionId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `questionId`: L'ID de la question à supprimer (ObjectId).
+- `deleteQuestion(questionId: int)`
+  - Permet de supprimer une doccument en utilisant son ID.
   - Retourne: Le nombre de documents supprimés.
-
+  
 #### responseModule.js
 Gère les opérations CRUD pour les réponses.
 
-- `createResponse(db, responseData)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `responseData`: Un objet contenant les détails de la réponse (ID de la question, titre).
-  - Retourne: L'ID de la réponse créée.
+- `createResponse({responseId : int,surveyId: int, reponseId: int, title: string, createdAt: Date})`
+  - Créer une réponse à une question spécifique avec des informations telles que l'ID de l'enquête, l'ID de la question, la réponse donnée.
+  - Retourne: L'ID de la réponse créée ou affiche une message si non trouvé.
 
-- `getResponseById(db, responseId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `responseId`: L'ID de la réponse à récupérer (ObjectId).
+- `getResponseById(responseId: int)`
+  - Permet récupère une réponse spécifique en utilisant son ID.
   - Retourne: L'objet représentant la réponse.
 
-- `getResponsesByQuestionId(db, questionId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `questionId`: L'ID de la question dont on veut récupérer les réponses (ObjectId).
-  - Retourne: Un tableau contenant toutes les réponses à la question.
-
-- `updateResponse(db, responseId, updateData)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `responseId`: L'ID de la réponse à mettre à jour (ObjectId).
-  - `updateData`: Un objet contenant les champs à mettre à jour.
+- `updateResponse(responseId: int, {questionId: int,surveyId : int, title: string, createAt: Date})`
+  - Permet de mettre à jour une réponse existante.
   - Retourne: Le nombre de documents modifiés.
 
-- `deleteResponse(db, responseId)`
-  - `db`: L'objet de connexion à la base de données MongoDB.
-  - `responseId`: L'ID de la réponse à supprimer (ObjectId).
+- `deleteResponse(responseId: int)`
+  - Permet de supprimer une réponse de la base de données.
   - Retourne: Le nombre de documents supprimés.
-
-
-### Structure des Objets
-
-#### Objet surveyModule
-- `surveyId` (Number): Identifiant unique
-- `name` (String): Nom de l'enquête
-- `description` (String): Description
-- `createdAt` (Date): Date de création
-- `createdBy` (Object):
-  - `employeeName` (String): Nom de l'employé créateur
-  - `employeeRole` (String): Rôle de l'employé
-
-#### Objet questionModule
-- `questionId` (Number): Identifiant unique
-- `surveyId` (Number): ID de l'enquête parente
-- `title` (String): Énoncé de la question
-- `type` (String): Type de question (ex: "rating")
-- `options` (Object): Options spécifiques
-  - Pour type "rating":
-    - `minValue` (Number): Valeur minimale
-    - `maxValue` (Number): Valeur maximale
-    - `step` (Number): Pas entre les valeurs
-
-#### Objet responseModule
-- `responseId` (Number): Identifiant unique
-- `questionId` (Number): ID de la question associée
-- `title` (String): Contenu de la réponse
-
 
 ## Contact
 Mohamed Bakary Soumaré - soumare17763@gmail.com

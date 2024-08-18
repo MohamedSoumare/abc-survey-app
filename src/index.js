@@ -1,103 +1,66 @@
-const connectDB = require('./config/database');
-const { createSurvey, getSurveyById, updateSurvey, deleteSurvey } = require('./modules/surveyModule');
+const { createSurvey,updateSurvey, deleteSurvey, getBySurveyId } = require('./modules/surveyModule');
 const { createQuestion, getQuestionById, updateQuestion, deleteQuestion } = require('./modules/questionModule');
 const { createResponse, getResponseById, updateResponse, deleteResponse } = require('./modules/responseModule');
 
-
 async function main() {
-    let db, client;
-
     try {
-        const connection = await connectDB();
-        db = connection.db;
-        client = connection.client;
-
         // Création d'une enquête
         const newSurvey = {
             title: 'Enquête sur la satisfaction des clients',
             description: 'Veuillez répondre aux questions suivantes.',
-            created_at: new Date(),
+            createdAt: new Date(),
             createdBy: {
-                employeeName: "Mohamed Diop",
+                employeeName: "Mohamed Soumaré",
                 employeeRole: "Analyste"
             },
         };
-        const surveyId = await createSurvey(db, newSurvey); 
-
-        console.log('Nouvelle enquête créée avec l\'ID :', surveyId);
-
-        // récupération de l'enquête par ID
-        const survey = await getSurveyById(db, surveyId);
-        console.log('Enquête récupérée:', survey);
-
-        // mise à jour de l'enquête
-        const updatedSurvey = { title: 'Enquête mise à jour' };
-        await updateSurvey(db, surveyId, updatedSurvey);
-        console.log('Enquête mise  à jour avec succès');
-
-        //  création d'une question
+         await createSurvey(newSurvey);
+        // Lecture d'une enquête
+         await getBySurveyId(1);
+        // Mise à jour d'une enquête
+        const updatedSurveyData = { title: 'Enquête mise à jour sur la satisfaction' };
+        await updateSurvey(1, updatedSurveyData);
+        // Suppression d'une enquête
+         await deleteSurvey(1);
+       
+        // Création d'une question
         const newQuestion = {
-            surveyId: surveyId, // Utilisez l'ID de l'enquête nouvellement créé
-            title: "Comment évalueriez-vous notre service ?",
-            type: "rating",
-            options: {
+            surveyId: 1,
+            title: 'Comment évaluez-vous notre service ?',
+            type: 'rating',
+            options:{
                 minValue: 1,
                 maxValue: 5,
                 step: 1
-            }
+            },
+            createdAt: new Date(),
         };
-        const questionId = await createQuestion(db, newQuestion);
-
-        console.log('Nouvelle question créée avec l\'ID :', questionId);
-
-        // récupération d'une question par ID
-        const question = await getQuestionById(db, questionId);
-        console.log('Question récupérée:', question);
-
-        // mise à jour d'une question
-        const updatedQuestion = { title: 'Comment évalueriez-vous notre service (mis à jour)?' };
-        await updateQuestion(db, questionId, updatedQuestion);
-        console.log('Question mise à jour avec succès');
-
-        // suppression d'une question
-        await deleteQuestion(db, questionId);
-        console.log('Question supprimée avec succès');
-
-        // création d'une réponse
+        await createQuestion(newQuestion);
+        // Lecture d'une question
+        await getQuestionById(1);
+        // Mise à jour d'une question
+        const updatedQuestionData = { title: 'Comment évaluez-vous notre service mis à jour ?' };
+        await updateQuestion(1, updatedQuestionData);
+        //Suppression d'une question
+        await deleteQuestion(1);
+        // Création d'une réponse
         const newResponse = {
-            questionId: questionId, 
-            surveyId: surveyId,
-            title: 'Très satisfait', 
-            created_at: new Date(),
+            surveyId: 1,
+            questionId: 1,
+            title: 'Très satisfait',
+            createdAt: new Date()
         };
-        const responseId = await createResponse(db, newResponse);
-        console.log('Nouvelle réponse créée avec l\'ID :', responseId);
-
-        // récupération d'une réponse par ID
-        const response = await getResponseById(db, responseId);
-        console.log('Réponse récupérée:', response);
-
-        // mise à jour d'une réponse
-        const updatedResponse = { answer: '5' };
-        await updateResponse(db, responseId, updatedResponse);
-        console.log('Réponse mise à jour avec succès');
-
-        // suppression d'une réponse
-        await deleteResponse(db, responseId);
-        console.log('Réponse supprimée avec succès');
-
-        // Suppression de l'enquête
-        await deleteSurvey(db, surveyId);
-        console.log('Enquête supprimée avec succès, ainsi que toutes les questions et réponses associées.');
-
-
+        await createResponse(newResponse);
+        // Lecture d'une réponse
+        await getResponseById(1);
+        // Mise à jour d'une réponse
+        const updatedResponseData = {title: 'Qualité du service' };
+         await updateResponse(1, updatedResponseData);
+        // Suppression d'une réponse
+        await deleteResponse(1);
+       
     } catch (error) {
-        console.error('Erreur lors de l\'exécution des opérations CRUD:', error.message);
-    } finally {
-        if (client) {
-            await client.close(); 
-        }
+        console.error('Erreur :', error.message);
     }
 }
-
-main().catch(console.error);
+main();

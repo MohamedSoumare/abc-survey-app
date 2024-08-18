@@ -1,114 +1,70 @@
-const { getQuestionsCollection } = require('./questionModule');
+const connectDB = require('../config/database');
 
-
-// Fonction pour obtenir la collection 'responses'
-function getResponsesCollection(db) {
-    if (!db) {
-        throw new Error("La connexion à la base de données n'est pas établie.");
-    }
-    return db.collection('responses');
+async function getNextResponseId(db) {
+    const collection = db.collection('responses');
+    const lastResponse = await collection.find().sort({ responseId: -1 }).limit(1).toArray();
+    return lastResponse.length > 0 ? lastResponse[0].responseId + 1 : 1;
 }
 
-// Créer une nouvelle réponse
-async function createResponse(db, responseData) {
+async function createResponse(responseData) {
+    const { db, client } = await connectDB();
     try {
-        const collection = getResponsesCollection(db);
-        const questionCollection = getQuestionsCollection(db);
-
-        // Vérifier si la question existe
-        const questionExists = await questionCollection.findOne({ questionId: responseData.questionId });
-        if (!questionExists) {
-            throw new Error(`Aucune question trouvée avec l'ID : ${responseData.questionId}`);
-        }
-
-        // Générer un ID de réponse numérique unique
-        const lastResponse = await collection.find().sort({ responseId: -1 }).limit(1).toArray();
-        const newResponseId = lastResponse.length > 0 ? lastResponse[0].responseId + 1 : 1;
-
-        responseData.responseId = newResponseId;
-
-        await collection.insertOne(responseData);
-        console.log(`Nouvelle réponse créée avec l'ID : ${newResponseId}`);
-        return newResponseId;
+        const collection = db.collection('responses');
+        const responseId = await getNextResponseId(db);
+        responseData.responseId = responseId;
+        const result = await collection.insertOne(responseData);
+        return responseId;
     } catch (error) {
-        console.error(`Erreur lors de la création de la réponse: ${error.message}`);
-        throw error;
+        throw new Error(`Erreur lors de la création de la réponse : ${error.message}`);
+    } finally {
+        await client.close();
     }
 }
 
-// Récupérer une réponse par ID
-async function getResponseById(db, responseId) {
+async function getResponseById(responseId) {
+    const { db, client } = await connectDB();
     try {
-        const collection = getResponsesCollection(db);
-        const response = await collection.findOne({ responseId });
-        if (!response) {
-            throw new Error(`Aucune réponse trouvée avec l'ID : ${responseId}`);
-        }
+        const collection = db.collection('responses');
+        const response = await collection.findOne({ responseId: responseId });
         return response;
     } catch (error) {
-        console.error(`Erreur lors de la récupération de la réponse: ${error.message}`);
-        throw error;
+        throw new Error(`Erreur lors de la lecture de la réponse : ${error.message}`);
+    } finally {
+        await client.close();
     }
 }
 
-// Récupérer les réponses par ID de question
-async function getResponsesByQuestionId(db, questionId) {
+async function updateResponse(responseId, updateData) {
+    const { db, client } = await connectDB();
     try {
-        const collection = getResponsesCollection(db);
-        const responses = await collection.find({ questionId }).toArray();
-        if (responses.length === 0) {
-            console.log(`Aucune réponse trouvée pour la question avec l'ID : ${questionId}`);
-        }
-        return responses;
-    } catch (error) {
-        console.error(`Erreur lors de la récupération des réponses par questionId: ${error.message}`);
-        throw error;
-    }
-}
-
-// Mettre à jour une réponse
-async function updateResponse(db, responseId, updateData) {
-    try {
-        const collection = getResponsesCollection(db);
-        const existingResponse = await collection.findOne({ responseId });
-        if (!existingResponse) {
-            throw new Error(`Aucune réponse trouvée avec l'ID : ${responseId}`);
-        }
-
-        const result = await collection.updateOne(
-            { responseId },
-            { $set: updateData }
-        );
-        console.log(`Réponse avec l'ID ${responseId} mise à jour.`);
+        const collection = db.collection('responses');
+        const result = await collection.updateOne({ responseId: responseId }, { $set: updateData });
+        console.log('Réponse mise à jour avec succès');
         return result.modifiedCount;
     } catch (error) {
-        console.error(`Erreur lors de la mise à jour de la réponse: ${error.message}`);
-        throw error;
+        throw new Error(`Erreur lors de la mise à jour de la réponse : ${error.message}`);
+    } finally {
+        await client.close();
     }
 }
 
-// Supprimer une réponse
-async function deleteResponse(db, responseId) {
+async function deleteResponse(responseId) {
+    const { db, client } = await connectDB();
     try {
-        const collection = getResponsesCollection(db);
-        const existingResponse = await collection.findOne({ responseId });
-        if (!existingResponse) {
-            throw new Error(`Aucune réponse trouvée avec l'ID : ${responseId}`);
-        }
-
-        const result = await collection.deleteOne({ responseId });
-        console.log(`Réponse avec l'ID ${responseId} supprimée.`);
+        const collection = db.collection('responses');
+        const result = await collection.deleteOne({ responseId: responseId });
+        console.log('Réponse supprimée avec succès');
         return result.deletedCount;
     } catch (error) {
-        console.error(`Erreur lors de la suppression de la réponse: ${error.message}`);
-        throw error;
+        throw new Error(`Erreur lors de la suppression de la réponse : ${error.message}`);
+    } finally {
+        await client.close();
     }
 }
 
 module.exports = {
     createResponse,
     getResponseById,
-    getResponsesByQuestionId,
     updateResponse,
     deleteResponse,
 };

@@ -25,9 +25,9 @@ async function createQuestion(questionData) {
         const collection = db.collection('questions');
 
         // Vérification si la question existe déjà pour cette enquête
-        const existingQuestion = await collection.findOne({ surveyId: questionData.surveyId, title: questionData.title });
+        const existingQuestion = await collection.findOne({ surveyId: questionData.surveyId, questionId: questionData.questionId });
         if (existingQuestion) {
-            throw new Error(`Une question avec le titre "${questionData.title}" existe déjà pour cette enquête.`);
+            throw new Error(`Une question avec l'identifiant "${questionData.questionId}" existe déjà pour cette enquête.`);
         }
 
         // Génération d'un nouvel ID pour la question

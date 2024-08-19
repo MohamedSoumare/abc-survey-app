@@ -5,7 +5,7 @@ async function connectDB() {
     const client = new MongoClient(uri);
     await client.connect();
     console.log('Connexion à la base de données établie avec mongodb');
-    const db = client.db('abc_survey_app'); 
+    const db = client.db('abc_surveyApp'); 
     return { db, client };
 }
 

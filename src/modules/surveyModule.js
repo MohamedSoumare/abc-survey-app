@@ -21,10 +21,10 @@ async function createSurvey(surveyData) {
         const newSurveyId = lastSurvey.length > 0 ? lastSurvey[0].surveyId + 1 : 1;
         surveyData.surveyId = newSurveyId;
 
-        // Vérification si l'enquête existe déjà par le titre
-        const existingSurvey = await collection.findOne({ title: surveyData.title });
+        // Vérification si l'enquête existe déjà par surveyId
+        const existingSurvey = await collection.findOne({ surveyId: surveyData.surveyId });
         if (existingSurvey) {
-            throw new Error(`Une enquête avec le titre "${surveyData.title}" existe déjà.`);
+            throw new Error(`Une enquête avec le surveyId "${surveyData.surveyId}" existe déjà.`);
         }
 
         // Insertion de la nouvelle enquête

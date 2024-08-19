@@ -25,9 +25,9 @@ async function createResponse(responseData) {
         const collection = db.collection('responses');
 
         // Vérification si la réponse existe déjà pour cette question
-        const existingResponse = await collection.findOne({ surveyId: responseData.surveyId, questionId: responseData.questionId, title: responseData.title });
+        const existingResponse = await collection.findOne({ surveyId: responseData.surveyId, questionId: responseData.questionId, responseId: responseData.responseId });
         if (existingResponse) {
-            throw new Error(`Une réponse avec le titre "${responseData.title}" existe déjà pour cette question.`);
+            throw new Error(`Une réponse avec l'identifiant "${responseData.responseId}" existe déjà pour cette question.`);
         }
 
         // Génération d'un nouvel ID pour la réponse

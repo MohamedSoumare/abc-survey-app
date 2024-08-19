@@ -9,7 +9,6 @@ Survey App est une application JavaScript simple permettant de gérer les fiches
 - [Node.js](https://nodejs.org/) (version 14 ou supérieure)
 - [MongoDB](https://www.mongodb.com/try/download/community) (version 4.0 ou supérieure)
 
-
 ## Installation
 
 Suivez ces étapes pour configurer le projet sur votre machine locale :
@@ -23,7 +22,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
 2. **Naviguez dans le répertoire du projet :**
 
     ```bash
-    cd abc-survey-app
+      cd abc-survey-app
     ```
 3. **Installez les dépendances :**
    
@@ -79,57 +78,133 @@ L'application se connectera à MongoDB et exécutera un exemple de création d'e
 #### surveyModule.js
 Gère les opérations CRUD pour les enquêtes.
 
-- `createSurvey({surveyId: int, name: string, description: string, createdAt: date}, createdBy:{employeeName: string, employeeRole: string})` 
-  -Permet de Créer une nouvelle enquête avec des détails comme le titre, la description, la date de création, et l'employé responsable.
-  - Retourne: L'ID de l'enquête créer.
+- `createSurvey(surveyData)` 
+  - Permet de Créer une nouvelle enquête avec des détails comme le titre, la description, la date de création, et l'employé responsable.
+  - Retourne L'ID de la nouvelle enquête créer.
+  - surveyData: Objet contenant les informations (parametre) de l'enquête.
 
-- `getSurveyById(surveyId: int)`
+    ### Exemple
+      ```javascript
+        createSurvey({
+            surveyId: number,
+            name: string,
+            description: string,
+            createdAt: Date,
+            createdBy: {
+                employeeName: string,
+                employeeRole: string,
+            },
+            questions: []
+        });
+      ```
+
+- `getSurveyById(surveyId: number)`
   - Permet récupère les détails d'une enquête spécifique en utilisant son ID.
-  - Retourne: L'objet représentant l'enquête ou affiche une message si non trouvé.
+  - Retourne: L'objet représentant l'enquête est trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
 
-- `updateSurvey(surveyId: int)`
+- `updateSurvey(surveyId: number, updateData)`
   - Permet de mettre à jour l'enquête d'une doccument existant en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
+  - updateData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
+    ### Exemple
+  ```javascript
+      updateSurvey(1, {
+            name: string,
+            description: string,
+            createdAt: Date,
+            createdBy: {
+                employeeName: string,
+                employeeRole: string
+            },
+            questions: []
+        });
+  ```
 
-- `deleteSurvey(surveyId: int)`
+- `deleteSurvey(surveyId: number)`
   - Permet de supprimer une enquête à partir de son ID.
   - Retourne: Le nombre de documents supprimés.
 
 #### questionModule.js
 Gère les opérations CRUD pour les questions.
 
-- `createQuestion({questionId: int, surveyId: int, title: string, type: string, option: int})`
-  - Permet de créer une nouvelle question en ajoutant à une enquête existante avec les informations nécessaires, telles que le titre de la question, le type de question, etc.
-  - Retourne: L'ID de la question créée ou affiche une message si non trouvé.
+- `createQuestion(questionData)`
+  - Permet de créer une nouvelle question en ajoutant à l'identifiant d'une enquête existante avec les informations nécessaires, telles que le titre de la question, le type de question, etc.
+  - Retourne: L'ID de la question créée ou affiche une message en cas non trouvé.
+  - questionData: Objet contenant les informations (parametre) de la question.
+      ### Exemple
+       ```javascript
+        createQuestion({
+            surveyId: number,
+            title: string,
+            type: string,
+            options: {
+                minValue: 1,
+                maxValue: 5,
+                step: 1
+            },
+            response: []
+        });
+      ```
 
-- `getQuestionById(questionId: int)`
-  - Permet lire les détails d'une question spécifique en utilisant son ID.
+- `getQuestionById(questionId: number)`
+  - Permet de récuperer  une question spécifique en utilisant son ID.
+  - Retourne L'objet représentant la question est trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
 
-- `updateQuestion(questionId: int, {surveyId: int, name: string, type: string, option: int})`
+- `updateQuestion(questionId: number, updateData)`
   - Permet de mettre à jour  une question existante d'un doccument en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
+  - updateData: Objet contenant les informations (parametre) de mise à jour de la question.
+    ### Exemple
+    ```javascript
+      updateQuestion(1, {
+          title: string,
+          type: string,
+          options: {
+            minValue: 1,
+            maxValue: 5,
+            step: 1
+            },
+            response: []
+      });
+    ```
 
-- `deleteQuestion(questionId: int)`
+- `deleteQuestion(questionId: number)`
   - Permet de supprimer une doccument en utilisant son ID.
   - Retourne: Le nombre de documents supprimés.
   
 #### responseModule.js
 Gère les opérations CRUD pour les réponses.
 
-- `createResponse({responseId : int,surveyId: int, reponseId: int, title: string, createdAt: Date})`
+- `createResponse(responseData)`
   - Créer une réponse à une question spécifique avec des informations telles que l'ID de l'enquête, l'ID de la question, la réponse donnée.
   - Retourne: L'ID de la réponse créée ou affiche une message si non trouvé.
+  - responseData: Objet contenant les informations de la réponse.
 
-- `getResponseById(responseId: int)`
+      ### Exemple
+       ```javascript
+          createResponse({
+                serverId: number,
+                questionId: number,
+                title: string,
+            });
+       ```
+- `getResponseById(responseId: number)`
   - Permet récupère une réponse spécifique en utilisant son ID.
   - Retourne: L'objet représentant la réponse.
 
-- `updateResponse(responseId: int, {questionId: int,surveyId : int, title: string, createAt: Date})`
+- `updateResponse(responseId: number, updateData)`
   - Permet de mettre à jour une réponse existante.
   - Retourne: Le nombre de documents modifiés.
-
-- `deleteResponse(responseId: int)`
-  - Permet de supprimer une réponse de la base de données.
+  - updateData: Objet contenant les informations (parametre) de mise à jour de la réponse.
+  ### Exemple
+    ```javascript
+      updateResponse(1, {
+      title: string,
+      response: []
+      });
+    ```
+- `deleteResponse(responseId: number)`
+  - Permet de supprimer une réponse d'un document.
   - Retourne: Le nombre de documents supprimés.
 
 ## Contact
@@ -137,6 +212,10 @@ Mohamed Bakary Soumaré - soumare17763@gmail.com
 
 Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
 
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
 ## Author
 
-- [Mohamed Bakary Soumaré](https://github.com/MohamedSoumare/)
+[Mohamed Bakary Soumaré](https://github.com/MohamedSoumare/)

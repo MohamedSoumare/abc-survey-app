@@ -1,4 +1,4 @@
-const { createSurvey,updateSurvey, deleteSurvey, getBySurveyId } = require('./modules/surveyModule');
+const { createSurvey, updateSurvey, deleteSurvey, getSurveyById } = require('./modules/surveyModule');
 const { createQuestion, getQuestionById, updateQuestion, deleteQuestion } = require('./modules/questionModule');
 const { createResponse, getResponseById, updateResponse, deleteResponse } = require('./modules/responseModule');
 
@@ -13,53 +13,56 @@ async function main() {
                 employeeName: "Mohamed Soumaré",
                 employeeRole: "Analyste"
             },
+            question: [],
         };
-         await createSurvey(newSurvey);
+        const surveyId = await createSurvey(newSurvey);
+
         // Lecture d'une enquête
-         await getBySurveyId(1);
+        await getSurveyById(surveyId);
         // Mise à jour d'une enquête
         const updatedSurveyData = { title: 'Enquête mise à jour sur la satisfaction' };
-        await updateSurvey(1, updatedSurveyData);
+        await updateSurvey(surveyId, updatedSurveyData);
         // Suppression d'une enquête
-         await deleteSurvey(1);
-       
+        await deleteSurvey(surveyId);
+
         // Création d'une question
         const newQuestion = {
-            surveyId: 1,
+            surveyId: surveyId,
             title: 'Comment évaluez-vous notre service ?',
             type: 'rating',
-            options:{
+            options: {
                 minValue: 1,
                 maxValue: 5,
                 step: 1
             },
-            createdAt: new Date(),
+            response: [],
         };
-        await createQuestion(newQuestion);
+        const questionId = await createQuestion(newQuestion);
+
         // Lecture d'une question
-        await getQuestionById(1);
+        await getQuestionById(questionId);
         // Mise à jour d'une question
         const updatedQuestionData = { title: 'Comment évaluez-vous notre service mis à jour ?' };
-        await updateQuestion(1, updatedQuestionData);
-        //Suppression d'une question
-        await deleteQuestion(1);
+        await updateQuestion(questionId, updatedQuestionData);
+
+        // Suppression d'une question
+        await deleteQuestion(questionId);
 
         // Création d'une réponse
         const newResponse = {
-            surveyId: 1,
-            questionId: 1,
+            surveyId: surveyId,
+            questionId: questionId,
             title: 'Très satisfait',
-            createdAt: new Date()
         };
-        await createResponse(newResponse);
+        const responseId = await createResponse(newResponse);
         // Lecture d'une réponse
-        await getResponseById(1);
+        await getResponseById(responseId);
         // Mise à jour d'une réponse
-        const updatedResponseData = {title: 'Qualité du service' };
-         await updateResponse(1, updatedResponseData);
+        const updatedResponseData = { title: 'Qualité du service' };
+        await updateResponse(responseId, updatedResponseData);
         // Suppression d'une réponse
-        await deleteResponse(1);
-       
+        await deleteResponse(responseId);
+
     } catch (error) {
         console.error('Erreur :', error.message);
     }

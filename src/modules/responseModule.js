@@ -1,6 +1,7 @@
 const connectDB = require('../config/database');
 
-let db = null; 
+let db = null;
+
 async function connectOnce() {
     if (!db) {
         const connection = await connectDB();
@@ -11,27 +12,29 @@ async function connectOnce() {
 
 // Fonction pour obtenir le prochain ID de réponse
 async function getNextResponseId() {
-    await connectOnce();  
+    await connectOnce();
     const collection = db.collection('responses');
-    
-    // Récupération de la dernière réponse triée par ID décroissant
     const lastResponse = await collection.find().sort({ responseId: -1 }).limit(1).toArray();
-    
-    // Si une réponse existe, l'ID suivant est celui de la dernière réponse + 1, sinon 1
     return lastResponse.length > 0 ? lastResponse[0].responseId + 1 : 1;
 }
 
 // Fonction pour créer une réponse
 async function createResponse(responseData) {
-    await connectOnce();  
+    await connectOnce();
     try {
         const collection = db.collection('responses');
-        
+
+        // Vérification si la réponse existe déjà pour cette question
+        const existingResponse = await collection.findOne({ surveyId: responseData.surveyId, questionId: responseData.questionId, title: responseData.title });
+        if (existingResponse) {
+            throw new Error(`Une réponse avec le titre "${responseData.title}" existe déjà pour cette question.`);
+        }
+
         // Génération d'un nouvel ID pour la réponse
         const responseId = await getNextResponseId();
         responseData.responseId = responseId;
-        
-        // Insertion de la nouvelle réponse dans la base de données
+
+        // Insertion de la nouvelle réponse
         const result = await collection.insertOne(responseData);
         console.log('Nouvelle réponse créée avec succès');
         return responseId;
@@ -42,38 +45,34 @@ async function createResponse(responseData) {
 
 // Fonction pour récupérer une réponse par ID
 async function getResponseById(responseId) {
-    await connectOnce();  
+    await connectOnce();
     try {
         const collection = db.collection('responses');
-        
-        // Recherche de la réponse par ID
+
         const response = await collection.findOne({ responseId: responseId });
-        
-        // Si aucune réponse n'est trouvée, une erreur est renvoyée
         if (!response) {
-            console.log(`Aucune réponse trouvée avec l'ID ${responseId}`);
             throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
         }
 
-        // Affichage de la réponse trouvée
         console.log('Réponse trouvée:', response);
         return response;
     } catch (error) {
-        console.error(`Erreur lors de la lecture de la réponse : ${error.message}`);
         throw new Error(`Erreur lors de la lecture de la réponse : ${error.message}`);
     }
 }
 
 // Fonction pour mettre à jour une réponse
 async function updateResponse(responseId, updateData) {
-    await connectOnce();  
+    await connectOnce();
     try {
         const collection = db.collection('responses');
-        
-        // Mise à jour des données de la réponse
+
+        const response = await collection.findOne({ responseId: responseId });
+        if (!response) {
+            throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
+        }
+
         const result = await collection.updateOne({ responseId: responseId }, { $set: updateData });
-        
-        // Si aucune réponse n'est mise à jour, une erreur est renvoyée
         if (result.modifiedCount === 0) {
             throw new Error(`Aucune mise à jour effectuée pour la réponse avec l'ID ${responseId}`);
         }
@@ -87,14 +86,16 @@ async function updateResponse(responseId, updateData) {
 
 // Fonction pour supprimer une réponse
 async function deleteResponse(responseId) {
-    await connectOnce();  
+    await connectOnce();
     try {
         const collection = db.collection('responses');
-        
-        // Suppression de la réponse de la base de données
+
+        const response = await collection.findOne({ responseId: responseId });
+        if (!response) {
+            throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
+        }
+
         const result = await collection.deleteOne({ responseId: responseId });
-        
-        // Si aucune réponse n'est supprimée, une erreur est renvoyée
         if (result.deletedCount === 0) {
             throw new Error(`Erreur lors de la suppression de la réponse avec l'ID ${responseId}`);
         }
@@ -106,7 +107,6 @@ async function deleteResponse(responseId) {
     }
 }
 
-// Exportation des fonctions relatives aux réponses
 module.exports = {
     createResponse,
     getResponseById,

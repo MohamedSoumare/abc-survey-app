@@ -16,19 +16,25 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
 1. **Clonez le repository :**
 
    ```
-   git clone https://github.com/MohamedSoumare/abc-survey-app.git
+     git clone https://github.com/MohamedSoumare/abc-survey-app.git
    
    ```
 2. **Naviguez dans le répertoire du projet :**
 
     ```bash
-      cd abc-survey-app
+       cd abc-survey-app
     ```
 3. **Installez les dépendances :**
    
     ```bash
-    npm install
+       npm install
     ```
+4. **Installez le module mongodb :**
+    
+    ```bash
+       npm install mongodb
+    ```
+
 ## Configuration
 
 1.  **Configurez la base de données :**
@@ -59,9 +65,8 @@ systeme-gestion-enquetes/
 
 Pour démarrer l'application, exécutez la commande suivante :
 
-
 ```bash
-npm start
+   npm start
 ```
 
 L'application se connectera à MongoDB et exécutera un exemple de création d'enquête, de question et response.
@@ -131,6 +136,7 @@ Gère les opérations CRUD pour les questions.
   - Permet de créer une nouvelle question en ajoutant à l'identifiant d'une enquête existante avec les informations nécessaires, telles que le titre de la question, le type de question, etc.
   - Retourne: L'ID de la question créée ou affiche une message en cas non trouvé.
   - questionData: Objet contenant les informations (parametre) de la question.
+
       ### Exemple
        ```javascript
         createQuestion({
@@ -154,6 +160,7 @@ Gère les opérations CRUD pour les questions.
   - Permet de mettre à jour  une question existante d'un doccument en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
   - updateData: Objet contenant les informations (parametre) de mise à jour de la question.
+  
     ### Exemple
     ```javascript
       updateQuestion(1, {

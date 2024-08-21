@@ -13,7 +13,7 @@ async function main() {
                 employeeName: "Mohamed Soumaré",
                 employeeRole: "Analyste"
             },
-            question: [],
+            // question: [],
         };
         const surveyId = await createSurvey(newSurvey);
 
@@ -35,7 +35,7 @@ async function main() {
                 maxValue: 5,
                 step: 1
             },
-            response: [],
+            // response: [],
         };
         const questionId = await createQuestion(newQuestion);
 

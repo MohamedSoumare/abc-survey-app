@@ -4,8 +4,7 @@ let db = null;
 
 async function connectOnce() {
     if (!db) {
-        const connection = await connectDB();
-        db = connection.db;
+        db = await connectDB();
     }
     return db;
 }
@@ -17,107 +16,90 @@ async function getNextQuestionId() {
     return lastQuestion.length > 0 ? lastQuestion[0].questionId + 1 : 1;
 }
 
-async function checkSurveyExists(surveyId) {
+async function insertQuestion(questionData) {
     await connectOnce();
-    const surveyCollection = db.collection('surveys');
-    const survey = await surveyCollection.findOne({ surveyId: surveyId });
-    if (!survey) {
-        throw new Error(`Aucune enquête trouvée avec l'ID ${surveyId}`);
+    const questionsCollection = db.collection('questions');
+    const surveysCollection = db.collection('surveys');
+
+    // Vérification si l'ID de la question ou de l'enquête existe déjà
+    const existingQuestion = await questionsCollection.findOne({ questionId: questionData.questionId });
+    if (existingQuestion) {
+        throw new Error(`Une question avec l'ID ${questionData.questionId} existe déjà.`);
     }
-    return survey;
-}
 
-async function createQuestion(questionData) {
-    await connectOnce();
-    try {
-        await checkSurveyExists(questionData.surveyId);
-
-        const collection = db.collection('questions');
-        const existingQuestion = await collection.findOne({ surveyId: questionData.surveyId, questionId: questionData.questionId });
-        if (existingQuestion) {
-            throw new Error(`Une question avec l'identifiant "${questionData.questionId}" existe déjà pour cette enquête.`);
-        }
-
-        const questionId = await getNextQuestionId();
-        questionData.questionId = questionId;
-
-        const result = await collection.insertOne(questionData);
-        console.log('Nouvelle question créée avec succès');
-        return questionId;
-    } catch (error) {
-        console.error(`Erreur lors de la création de la question : ${error.message}`);
-        throw error;
+    const existingSurvey = await surveysCollection.findOne({ surveyId: questionData.surveyId });
+    if (!existingSurvey) {
+        throw new Error(`Aucune enquête trouvée avec l'ID ${questionData.surveyId}`);
     }
+
+    const questionId = await getNextQuestionId();
+    questionData.questionId = questionId;
+    await questionsCollection.insertOne(questionData);
+    console.log('Nouvelle question créée avec succès');
 }
 
 async function getQuestionById(questionId) {
     await connectOnce();
-    try {
-        const collection = db.collection('questions');
-        const question = await collection.findOne({ questionId: questionId });
-        if (!question) {
-            throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
-        }
-
-        console.log('Question trouvée:', question);
-        return question;
-    } catch (error) {
-        console.error(`Erreur lors de la lecture de la question : ${error.message}`);
-        throw error;
+    const collection = db.collection('questions');
+    const question = await collection.findOne({ questionId });
+    if (!question) {
+        throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
     }
+    return question;
 }
 
-async function updateQuestion(questionId, updateData) {
+async function getAllQuestions() {
     await connectOnce();
-    try {
-        const collection = db.collection('questions');
-        const question = await collection.findOne({ questionId: questionId });
-        if (!question) {
-            throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
-        }
-
-        await checkSurveyExists(question.surveyId);
-
-        const result = await collection.updateOne({ questionId: questionId }, { $set: updateData });
-        if (result.modifiedCount === 0) {
-            throw new Error(`Aucune mise à jour effectuée pour la question avec l'ID ${questionId}`);
-        }
-
-        console.log('Question mise à jour avec succès');
-        return result.modifiedCount;
-    } catch (error) {
-        console.error(`Erreur lors de la mise à jour de la question : ${error.message}`);
-        throw error;
+    const collection = db.collection('questions');
+    const questions = await collection.find().sort({ questionId: 1 }).toArray(); 
+    if (questions.length === 0) {
+        console.log('Aucune question trouvée.');
+    } else {
+        console.log('Liste des questions :', questions);
     }
+    return questions;
+}
+
+async function updateQuestion(questionId, updatedQuestionData) {
+    await connectOnce();
+    const questionsCollection = db.collection('questions');
+    const surveysCollection = db.collection('surveys');
+
+    // Vérification si l'ID de la question ou de l'enquête existe
+    const existingQuestion = await questionsCollection.findOne({ questionId });
+    if (!existingQuestion) {
+        throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
+    }
+
+    if (updatedQuestionData.surveyId) {
+        const existingSurvey = await surveysCollection.findOne({ surveyId: updatedQuestionData.surveyId });
+        if (!existingSurvey) {
+            throw new Error(`Aucune enquête trouvée avec l'ID ${updatedQuestionData.surveyId}`);
+        }
+    }
+
+    await questionsCollection.updateOne({ questionId }, { $set: updatedQuestionData });
+    console.log('Question mise à jour avec succès');
 }
 
 async function deleteQuestion(questionId) {
     await connectOnce();
-    try {
-        const collection = db.collection('questions');
-        const question = await collection.findOne({ questionId: questionId });
-        if (!question) {
-            throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
-        }
+    const collection = db.collection('questions');
 
-        await checkSurveyExists(question.surveyId);
-
-        const result = await collection.deleteOne({ questionId: questionId });
-        if (result.deletedCount === 0) {
-            throw new Error(`Erreur lors de la suppression de la question avec l'ID ${questionId}`);
-        }
-
-        console.log('Question supprimée avec succès');
-        return result.deletedCount;
-    } catch (error) {
-        console.error(`Erreur lors de la suppression de la question : ${error.message}`);
-        throw error;
+    // Vérification si l'ID de la question existe
+    const existingQuestion = await collection.findOne({ questionId });
+    if (!existingQuestion) {
+        throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
     }
+
+    await collection.deleteOne({ questionId });
+    console.log('Question supprimée avec succès');
 }
 
 module.exports = {
-    createQuestion,
+    insertQuestion,
     getQuestionById,
+    getAllQuestions, 
     updateQuestion,
-    deleteQuestion,
+    deleteQuestion
 };

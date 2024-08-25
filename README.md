@@ -29,7 +29,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
     ```bash
        npm install
     ```
-  Installez le module mongodb
+   Installez le module mongodb
     
     ```bash
        npm install mongodb
@@ -138,7 +138,7 @@ Gère les opérations CRUD pour les questions.
 
   ### Exemple d'utilisation
        ```javascript
-            const questionId = await createQuestion({
+      const questionId = await createQuestion({
             surveyId: surveyId,
             title: 'Comment évaluez-vous notre service ?',
             type: 'rating',
@@ -162,7 +162,7 @@ Gère les opérations CRUD pour les questions.
  ### Exemple d'utilisation
 
     ```javascript
-            await updateQuestion(1, {
+     await updateQuestion(1, {
             title: 'Comment évaluez-vous notre service mis à jour?',
             type: 'rating',
             options: {

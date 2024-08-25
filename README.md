@@ -29,7 +29,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
     ```bash
        npm install
     ```
-4. **Installez le module mongodb :**
+  Installez le module mongodb
     
     ```bash
        npm install mongodb
@@ -42,7 +42,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
   - Assurez-vous que MongoDB est en cours d'exécution sur votre machine locale.
   - Mettez les paramètres de connexion dans `config/database.js`.
 
-  
+
 ## Structure du Projet
 ```
 systeme-gestion-enquetes/
@@ -88,42 +88,41 @@ Gère les opérations CRUD pour les enquêtes.
   - Retourne L'ID de la nouvelle enquête créer.
   - surveyData: Objet contenant les informations (parametre) de l'enquête.
 
-    ### Exemple
+    ### Exemple d'utilisation
       ```javascript
-        createSurvey({
-            surveyId: number,
-            name: string,
-            description: string,
-            createdAt: Date,
+     const surveyId = await createSurvey({
+            title: 'Enquête sur la satisfaction des clients',
+            description: 'Veuillez répondre aux questions suivantes.',
+            createdAt: new Date(),
             createdBy: {
-                employeeName: string,
-                employeeRole: string,
+                employeeName: "Mohamed Soumaré",
+                employeeRole: "Analyste"
             },
-            questions: []
         });
+
       ```
 
 - `getSurveyById(surveyId: number)`
   - Permet récupère les détails d'une enquête spécifique en utilisant son ID.
   - Retourne: L'objet représentant l'enquête est trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
 
-- `updateSurvey(surveyId: number, updateData)`
+- `updateSurvey(surveyId: number, updatedData)`
   - Permet de mettre à jour l'enquête d'une doccument existant en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
   - updateData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
-    ### Exemple
+
+  ### Exemple d'utilisation
   ```javascript
-      updateSurvey(1, {
-            name: string,
-            description: string,
-            createdAt: Date,
+        await updateSurvey(1, {
+            title: 'Enquête mise à jour sur la satisfaction',
+            description: 'Veuillez corriger les questions suivantes.',
+            createdAt: new Date(),
             createdBy: {
-                employeeName: string,
-                employeeRole: string
-            },
-            questions: []
+                employeeName: "Oumar Ba",
+                employeeRole: "Consultant",
+            }
         });
-  ```
+```
 
 - `deleteSurvey(surveyId: number)`
   - Permet de supprimer une enquête à partir de son ID.
@@ -137,18 +136,17 @@ Gère les opérations CRUD pour les questions.
   - Retourne: L'ID de la question créée ou affiche une message en cas non trouvé.
   - questionData: Objet contenant les informations (parametre) de la question.
 
-      ### Exemple
+  ### Exemple d'utilisation
        ```javascript
-        createQuestion({
-            surveyId: number,
-            title: string,
-            type: string,
+            const questionId = await createQuestion({
+            surveyId: surveyId,
+            title: 'Comment évaluez-vous notre service ?',
+            type: 'rating',
             options: {
                 minValue: 1,
                 maxValue: 5,
                 step: 1
             },
-            response: []
         });
       ```
 
@@ -160,26 +158,27 @@ Gère les opérations CRUD pour les questions.
   - Permet de mettre à jour  une question existante d'un doccument en utilisant son ID.
   - Retourne: Le nombre de documents modifiés.
   - updateData: Objet contenant les informations (parametre) de mise à jour de la question.
-  
-    ### Exemple
+
+ ### Exemple d'utilisation
+
     ```javascript
-      updateQuestion(1, {
-          title: string,
-          type: string,
-          options: {
-            minValue: 1,
-            maxValue: 5,
-            step: 1
+            await updateQuestion(1, {
+            title: 'Comment évaluez-vous notre service mis à jour?',
+            type: 'rating',
+            options: {
+                minValue: 1,
+                maxValue: 5,
+                step: 1
             },
-            response: []
-      });
+        });
     ```
 
 - `deleteQuestion(questionId: number)`
-  - Permet de supprimer une doccument en utilisant son ID.
-  - Retourne: Le nombre de documents supprimés.
+- Permet de supprimer une doccument en utilisant son ID.
+- Retourne: Le nombre de documents supprimés.
   
 #### responseModule.js
+
 Gère les opérations CRUD pour les réponses.
 
 - `createResponse(responseData)`
@@ -187,13 +186,13 @@ Gère les opérations CRUD pour les réponses.
   - Retourne: L'ID de la réponse créée ou affiche une message si non trouvé.
   - responseData: Objet contenant les informations de la réponse.
 
-      ### Exemple
+    ### Exemple
        ```javascript
-          createResponse({
-                serverId: number,
-                questionId: number,
-                title: string,
-            });
+         await createResponse({
+            surveyId: surveyId,
+            questionId: questionId,
+            title: 'Très satisfait',
+        });
        ```
 - `getResponseById(responseId: number)`
   - Permet récupère une réponse spécifique en utilisant son ID.
@@ -203,19 +202,19 @@ Gère les opérations CRUD pour les réponses.
   - Permet de mettre à jour une réponse existante.
   - Retourne: Le nombre de documents modifiés.
   - updateData: Objet contenant les informations (parametre) de mise à jour de la réponse.
+
   ### Exemple
     ```javascript
-      updateResponse(1, {
-      title: string,
-      response: []
-      });
+     await updateResponse(1, {
+            title: 'Satisfait Ali',
+        });
     ```
 - `deleteResponse(responseId: number)`
   - Permet de supprimer une réponse d'un document.
   - Retourne: Le nombre de documents supprimés.
 
 ## Contact
-Mohamed Bakary Soumaré - soumare17763@gmail.com
+Mohamed Bakary Soumaré - mohamedsoumare17763@gmail.com
 
 Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
 
@@ -226,3 +225,8 @@ Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
 ## Author
 
 [Mohamed Bakary Soumaré](https://github.com/MohamedSoumare/)
+
+
+ ```
+Ce README fournit une documentation exhaustive sur l'ensemble des fonctionnalités disponibles dans les modules surveyModule, questionModule, et responseModule.
+ ```

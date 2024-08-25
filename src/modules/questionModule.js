@@ -10,7 +10,6 @@ async function connectOnce() {
     return db;
 }
 
-// Fonction pour obtenir le prochain ID de question
 async function getNextQuestionId() {
     await connectOnce();
     const collection = db.collection('questions');
@@ -18,37 +17,43 @@ async function getNextQuestionId() {
     return lastQuestion.length > 0 ? lastQuestion[0].questionId + 1 : 1;
 }
 
-// Fonction pour créer une question
+async function checkSurveyExists(surveyId) {
+    await connectOnce();
+    const surveyCollection = db.collection('surveys');
+    const survey = await surveyCollection.findOne({ surveyId: surveyId });
+    if (!survey) {
+        throw new Error(`Aucune enquête trouvée avec l'ID ${surveyId}`);
+    }
+    return survey;
+}
+
 async function createQuestion(questionData) {
     await connectOnce();
     try {
-        const collection = db.collection('questions');
+        await checkSurveyExists(questionData.surveyId);
 
-        // Vérification si la question existe déjà pour cette enquête
+        const collection = db.collection('questions');
         const existingQuestion = await collection.findOne({ surveyId: questionData.surveyId, questionId: questionData.questionId });
         if (existingQuestion) {
             throw new Error(`Une question avec l'identifiant "${questionData.questionId}" existe déjà pour cette enquête.`);
         }
 
-        // Génération d'un nouvel ID pour la question
         const questionId = await getNextQuestionId();
         questionData.questionId = questionId;
 
-        // Insertion de la nouvelle question
         const result = await collection.insertOne(questionData);
         console.log('Nouvelle question créée avec succès');
         return questionId;
     } catch (error) {
-        throw new Error(`Erreur lors de la création de la question : ${error.message}`);
+        console.error(`Erreur lors de la création de la question : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour récupérer une question par ID
 async function getQuestionById(questionId) {
     await connectOnce();
     try {
         const collection = db.collection('questions');
-
         const question = await collection.findOne({ questionId: questionId });
         if (!question) {
             throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
@@ -57,20 +62,21 @@ async function getQuestionById(questionId) {
         console.log('Question trouvée:', question);
         return question;
     } catch (error) {
-        throw new Error(`Erreur lors de la lecture de la question : ${error.message}`);
+        console.error(`Erreur lors de la lecture de la question : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour mettre à jour une question
 async function updateQuestion(questionId, updateData) {
     await connectOnce();
     try {
         const collection = db.collection('questions');
-
         const question = await collection.findOne({ questionId: questionId });
         if (!question) {
             throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
         }
+
+        await checkSurveyExists(question.surveyId);
 
         const result = await collection.updateOne({ questionId: questionId }, { $set: updateData });
         if (result.modifiedCount === 0) {
@@ -80,20 +86,21 @@ async function updateQuestion(questionId, updateData) {
         console.log('Question mise à jour avec succès');
         return result.modifiedCount;
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour de la question : ${error.message}`);
+        console.error(`Erreur lors de la mise à jour de la question : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour supprimer une question
 async function deleteQuestion(questionId) {
     await connectOnce();
     try {
         const collection = db.collection('questions');
-
         const question = await collection.findOne({ questionId: questionId });
         if (!question) {
             throw new Error(`Aucune question trouvée avec l'ID ${questionId}`);
         }
+
+        await checkSurveyExists(question.surveyId);
 
         const result = await collection.deleteOne({ questionId: questionId });
         if (result.deletedCount === 0) {
@@ -103,7 +110,8 @@ async function deleteQuestion(questionId) {
         console.log('Question supprimée avec succès');
         return result.deletedCount;
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression de la question : ${error.message}`);
+        console.error(`Erreur lors de la suppression de la question : ${error.message}`);
+        throw error;
     }
 }
 

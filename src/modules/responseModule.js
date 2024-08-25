@@ -10,7 +10,22 @@ async function connectOnce() {
     return db;
 }
 
-// Fonction pour obtenir le prochain ID de réponse
+async function checkSurveyExists(surveyId) {
+    await connectOnce();
+    const survey = await db.collection('surveys').findOne({ surveyId: surveyId });
+    if (!survey) {
+        throw new Error(`L'enquête avec l'ID ${surveyId} est introuvable.`);
+    }
+}
+
+async function checkQuestionExists(questionId) {
+    await connectOnce();
+    const question = await db.collection('questions').findOne({ questionId: questionId });
+    if (!question) {
+        throw new Error(`La question avec l'ID ${questionId} est introuvable.`);
+    }
+}
+
 async function getNextResponseId() {
     await connectOnce();
     const collection = db.collection('responses');
@@ -18,37 +33,35 @@ async function getNextResponseId() {
     return lastResponse.length > 0 ? lastResponse[0].responseId + 1 : 1;
 }
 
-// Fonction pour créer une réponse
 async function createResponse(responseData) {
     await connectOnce();
     try {
         const collection = db.collection('responses');
 
-        // Vérification si la réponse existe déjà pour cette question
+        await checkSurveyExists(responseData.surveyId);
+        await checkQuestionExists(responseData.questionId);
+
         const existingResponse = await collection.findOne({ surveyId: responseData.surveyId, questionId: responseData.questionId, responseId: responseData.responseId });
         if (existingResponse) {
             throw new Error(`Une réponse avec l'identifiant "${responseData.responseId}" existe déjà pour cette question.`);
         }
 
-        // Génération d'un nouvel ID pour la réponse
         const responseId = await getNextResponseId();
         responseData.responseId = responseId;
 
-        // Insertion de la nouvelle réponse
         const result = await collection.insertOne(responseData);
         console.log('Nouvelle réponse créée avec succès');
         return responseId;
     } catch (error) {
-        throw new Error(`Erreur lors de la création de la réponse : ${error.message}`);
+        console.error(`Erreur lors de la création de la réponse : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour récupérer une réponse par ID
 async function getResponseById(responseId) {
     await connectOnce();
     try {
         const collection = db.collection('responses');
-
         const response = await collection.findOne({ responseId: responseId });
         if (!response) {
             throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
@@ -57,16 +70,15 @@ async function getResponseById(responseId) {
         console.log('Réponse trouvée:', response);
         return response;
     } catch (error) {
-        throw new Error(`Erreur lors de la lecture de la réponse : ${error.message}`);
+        console.error(`Erreur lors de la lecture de la réponse : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour mettre à jour une réponse
 async function updateResponse(responseId, updateData) {
     await connectOnce();
     try {
         const collection = db.collection('responses');
-
         const response = await collection.findOne({ responseId: responseId });
         if (!response) {
             throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
@@ -80,16 +92,15 @@ async function updateResponse(responseId, updateData) {
         console.log('Réponse mise à jour avec succès');
         return result.modifiedCount;
     } catch (error) {
-        throw new Error(`Erreur lors de la mise à jour de la réponse : ${error.message}`);
+        console.error(`Erreur lors de la mise à jour de la réponse : ${error.message}`);
+        throw error;
     }
 }
 
-// Fonction pour supprimer une réponse
 async function deleteResponse(responseId) {
     await connectOnce();
     try {
         const collection = db.collection('responses');
-
         const response = await collection.findOne({ responseId: responseId });
         if (!response) {
             throw new Error(`Aucune réponse trouvée avec l'ID ${responseId}`);
@@ -103,7 +114,8 @@ async function deleteResponse(responseId) {
         console.log('Réponse supprimée avec succès');
         return result.deletedCount;
     } catch (error) {
-        throw new Error(`Erreur lors de la suppression de la réponse : ${error.message}`);
+        console.error(`Erreur lors de la suppression de la réponse : ${error.message}`);
+        throw error;
     }
 }
 

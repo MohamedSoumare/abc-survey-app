@@ -40,7 +40,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
 
 ## Structure du Projet
 ```
-systeme-gestion-enquetes/
+abc-survey-app/
 │
 ├── config/
 │   └── database.js
@@ -77,9 +77,9 @@ Gère les opérations CRUD pour les enquêtes(survey).
   - Permet de Créer une nouvelle enquête avec des détails comme le nom, la description, la date de création et creer par l'employé.
   - surveyData: Objet contenant les informations (parametre) de la creation l'enquête.
 
-    ### Exemple d'utilisation
-     ```javascript
-       const surveyData = {
+  ### Exemple d'utilisation
+    ```javascript
+           const surveyData = {
             name: "Enquête de satisfaction 001",
             description: "Enquête visant à évaluer la satisfaction des clients concernant nos services.",
             createdAt: new Date().toISOString(),
@@ -89,7 +89,7 @@ Gère les opérations CRUD pour les enquêtes(survey).
             }
         };
         await insertSurvey(surveyData);
-      ```
+    ```
 
 - `getSurveyById(surveyId: int)`
    - Permet de récupérer une enquête par son identifiant.
@@ -117,8 +117,8 @@ Gère les opérations CRUD pour les enquêtes(survey).
   - surveyId: ID de l'enquête à modifier.
   - updateData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
 
-  ### Exemple d'utilisation
-    ```javascript
+### Exemple d'utilisation
+  ```javascript
       const updateData = {
             name: "Enquête de nos satisfaction 001",
             description: "Enquête visant à évaluer experience et la satisfaction des clients concernant nos services.",
@@ -128,7 +128,7 @@ Gère les opérations CRUD pour les enquêtes(survey).
             }
         };
         await updateSurvey(1, updateData);
-    ```
+  ```
 
 - `deleteSurvey(surveyId: int)`
   - Permet de supprimer une enquête à partir de son ID.
@@ -148,7 +148,8 @@ Gère les opérations CRUD pour les questions.
   - questionData: Objet contenant les informations (parametre) de la question.
 
   ###  Exemple d'utilisation
-      ```javascript
+
+  ```javascript
             const questionData = {
             surveyId: 1,
             title: "Comment évalueriez-vous notre service ?",
@@ -160,7 +161,7 @@ Gère les opérations CRUD pour les questions.
             }
          };
         await insertQuestion(questionData);
-      ```
+  ```
 
 - `getQuestionById(questionId: int)`
   - Permet de récuperer  une question spécifique en utilisant son ID.
@@ -189,12 +190,12 @@ Gère les opérations CRUD pour les questions.
   - updatedQuestionData: l'Objet contenant les informations (parametre) de mise à jour de la question.
 
  ### Exemple d'utilisation
-    ```javascript
+  ```javascript
       const updatedQuestionData = {
             title: "Comment Vouliez vous que nous corrigons notre service ?"
         };
       await updateQuestion(1, updatedQuestionData);
-    ```
+  ```
 
 - `deleteQuestion(questionId: int)`
 - Permet de supprimer une question en utilisant son ID.
@@ -202,7 +203,7 @@ Gère les opérations CRUD pour les questions.
 - questionId: ID de la question à supprimer.
 
 ### Exemple d'utilisation
-```javascript
+  ```javascript
       await deleteQuestion(1);
   ```     
 
@@ -214,35 +215,35 @@ Gère les opérations CRUD pour les réponses.
   - Créer une réponse spécifique avec des informations telles que l'ID de l'enquête, l'ID de la question, la réponse donnée.
   - answerData: Objet contenant les informations (parametre) de la réponse.
 
-    ### Exemple d'utilisation
-       ```javascript
+### Exemple d'utilisation
+  ```javascript
         const answerData ={
             surveyId: 1,
             questionId: 1,
            title : 'Neutre'
         };
         await insertAnswer(answerData);
-       ```
+  ```
 
 - `getAnswerById(answerId: int)`
   - Permet récupère une réponse spécifique en utilisant son ID.
   - Retourne: La réponse spécifique.
   - answerId: ID de la réponse à récupérer.
 
-   ### Exemple d'utilisation
-     ```javascript
-        const answerId = 1;
-        await getAnswerById(answerId);
-       ```
+### Exemple d'utilisation
+  ```javascript
+       const answerId = 1;
+       await getAnswerById(answerId);
+  ```
 
 - `getAllAnswers()`
   - Permet de récupérer toutes les réponses d'une enquête.
   - Retourne: Toutes les réponses.
 
- ### Exemple d'utilisation
-    ```javascript
+### Exemple d'utilisation
+  ```javascript
         await getAllAnswers();
-    ```
+  ```
 
 - `updateAnswer(answerId: int, updatedAnswerData)`
 - Met à jour une réponse spécifique en utilisant son ID.
@@ -250,20 +251,21 @@ Gère les opérations CRUD pour les réponses.
 - answerId: ID de la réponse à mettre à jour.
 - updatedAnswerData: Objet contenant les informations (paramètres) de la réponse mise à jour.
 
-  ### Exemple d'utilisation
+### Exemple d'utilisation
 
-    ```javascript
+  ```javascript
       const updatedAnswerData = {
           title : 'Satisfait'
         };
         await updateAnswer(1, updatedAnswerData);
-    ```
+  ```
+
 - `deleteAnswer(answerId: int)`
 - Supprime une réponse spécifique en utilisant son ID.
 - Retourne: La réponse supprimée.
 - answerId: ID de la réponse à supprimer.
  
- ### Exemple  d'utilisation
+  ### Exemple  d'utilisation
     ```javascript
      await deleteAnswer(1);
     ```
@@ -282,6 +284,6 @@ Lien du projet :[https://github.com/MohamedSoumare/abc-survey-app.git]
 [Mohamed Bakary Soumaré](https://github.com/MohamedSoumare/)
 
 
- ```
+```
 Ce README fournit une documentation exhaustive sur l'ensemble des fonctionnalités disponibles dans les modules surveyModule, questionModule, et responseModule.
- ```
+```

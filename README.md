@@ -111,15 +111,15 @@ Gère les opérations CRUD pour les enquêtes(survey).
     await getAllSurveys();
   ```     
 
-- `updateSurvey(surveyId: int, updatedQuestionData)`
+- `updateSurvey(surveyId: int, updateData)`
   - Permet de mettre à jour l'enquête d'une enquete existant en utilisant son ID.
   - Retourne: l'enquete modifier.
   - surveyId: ID de l'enquête à modifier.
-  - updatedQuestionData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
+  - updateData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
 
   ### Exemple d'utilisation
-  ```javascript
-        const updatedQuestionData = {
+    ```javascript
+      const updateData = {
             name: "Enquête de nos satisfaction 001",
             description: "Enquête visant à évaluer experience et la satisfaction des clients concernant nos services.",
             createdBy: {
@@ -127,8 +127,8 @@ Gère les opérations CRUD pour les enquêtes(survey).
                 employeeRole: "Chef de projet"
             }
         };
-        await updateSurvey(1, updatedQuestionData);
-   ```
+        await updateSurvey(1, updateData);
+    ```
 
 - `deleteSurvey(surveyId: int)`
   - Permet de supprimer une enquête à partir de son ID.
@@ -148,8 +148,8 @@ Gère les opérations CRUD pour les questions.
   - questionData: Objet contenant les informations (parametre) de la question.
 
   ###  Exemple d'utilisation
-       ```javascript
-      const questionData = {
+      ```javascript
+            const questionData = {
             surveyId: 1,
             title: "Comment évalueriez-vous notre service ?",
             type: "rating",
@@ -158,8 +158,8 @@ Gère les opérations CRUD pour les questions.
                 maxValue: 5,
                 step: 1
             }
-        };
-      await insertQuestion(questionData);
+         };
+        await insertQuestion(questionData);
       ```
 
 - `getQuestionById(questionId: int)`

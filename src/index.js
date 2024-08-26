@@ -83,7 +83,6 @@ async function main() {
          // Delete a survey
          await deleteSurvey(1);
         
-
     } catch (error) {
         console.error("Erreur de message :", error.message);
     }

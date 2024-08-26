@@ -22,7 +22,7 @@ Suivez ces étapes pour configurer le projet sur votre machine locale :
 2. **Naviguez dans le répertoire du projet :**
 
     ```bash
-       cd abc-survey-app
+       cd  abc-survey-app
     ```
 3. **Installez les dépendances :**
    
@@ -91,16 +91,30 @@ Gère les opérations CRUD pour les enquêtes(survey).
         await insertSurvey(surveyData);
       ```
 
-- `getSurveyById(surveyId: number)`
-  - Permet récupère le détail d'une enquête spécifique en utilisant son ID.
-  - Retourne: L'objet représentant l'enquête est trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
+- `getSurveyById(surveyId: int)`
+   - Permet de récupérer une enquête par son identifiant.
+    - surveyId: ID de l'enquête à récupérer. 
+  - Retourne: l'enquête trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
+
+ ### Exemple d'utilisation
+  ```javascript
+     const surveyId = 1;
+     await getSurveyById(surveyId);
+  ```     
 
 - `getAllSurveys()`
   - Permet de récupérer la liste de toutes les enquêtes.
+  - Retourne: la liste des enquêtes.
+  
+ ### Exemple d'utilisation
+  ```javascript
+    await getAllSurveys();
+  ```     
 
-- `updateSurvey(surveyId: number, updatedQuestionData)`
+- `updateSurvey(surveyId: int, updatedQuestionData)`
   - Permet de mettre à jour l'enquête d'une enquete existant en utilisant son ID.
   - Retourne: l'enquete modifier.
+  - surveyId: ID de l'enquête à modifier.
   - updatedQuestionData: Objet contenant les informations (parametre) de mise à jour de l'enquête.
 
   ### Exemple d'utilisation
@@ -116,15 +130,21 @@ Gère les opérations CRUD pour les enquêtes(survey).
         await updateSurvey(1, updatedQuestionData);
    ```
 
-- `deleteSurvey(surveyId: number)`
+- `deleteSurvey(surveyId: int)`
   - Permet de supprimer une enquête à partir de son ID.
   - Retourne: L'enquete supprimés.
+  - surveyId: ID de l'enquête à supprimer.
+   ### Exemple d'utilisation
+  ```javascript
+      await deleteSurvey(1);
+  ```     
+  
 
 #### questionModule.js
 Gère les opérations CRUD pour les questions.
 
 - `insertQuestion(questionData)`
-  - Permet de créer une nouvelle question en récuperant l'identifiant d'une enquête existante avec les informations nécessaires, telles que le titre de la question, le type de question, etc.
+  - Permet de créer une nouvelle question en récuperant l'identifiant d'une enquête existante.
   - questionData: Objet contenant les informations (parametre) de la question.
 
   ###  Exemple d'utilisation
@@ -142,20 +162,33 @@ Gère les opérations CRUD pour les questions.
       await insertQuestion(questionData);
       ```
 
-- `getQuestionById(questionId: number)`
+- `getQuestionById(questionId: int)`
   - Permet de récuperer  une question spécifique en utilisant son ID.
-  - Retourne L'objet représentant la question est trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
+  - questionId: ID de la question à récupérer.
+  - Retourne: La question récupérée.
+  
+  ### Exemple d'utilisation
+  ```javascript
+        const questionId = 1;
+        await getQuestionById(questionId);
+  ```     
 
 - `getAllQuestions()`
   - Permet de récupérer toutes les questions d'une enquête.
+  - Retourne: Toutes les questions.
+  
+  ### Exemple d'utilisation
+  ```javascript
+         await getAllQuestions();
+  ```     
 
-- `updateQuestion(questionId: number, updatedQuestionData)`
+- `updateQuestion(questionId: int, updatedQuestionData)`
   - Permet de mettre à jour  une question existante d'un objet en utilisant son ID.
   - Retourne: question modifiés.
+  - questionId: ID de la question à mettre à jour.
   - updatedQuestionData: l'Objet contenant les informations (parametre) de mise à jour de la question.
 
  ### Exemple d'utilisation
-
     ```javascript
       const updatedQuestionData = {
             title: "Comment Vouliez vous que nous corrigons notre service ?"
@@ -163,19 +196,25 @@ Gère les opérations CRUD pour les questions.
       await updateQuestion(1, updatedQuestionData);
     ```
 
-- `deleteQuestion(questionId: number)`
-- Permet de supprimer une doccument en utilisant son ID.
-- Retourne:  la question supprimés.
-  
+- `deleteQuestion(questionId: int)`
+- Permet de supprimer une question en utilisant son ID.
+- Retourne: La question supprimée.
+- questionId: ID de la question à supprimer.
+
+### Exemple d'utilisation
+```javascript
+      await deleteQuestion(1);
+  ```     
+
 #### responseModule.js
 
 Gère les opérations CRUD pour les réponses.
 
 - `insertAnswer(answerData)`
   - Créer une réponse spécifique avec des informations telles que l'ID de l'enquête, l'ID de la question, la réponse donnée.
-  - answerData: Objet contenant les informations de la réponse.
+  - answerData: Objet contenant les informations (parametre) de la réponse.
 
-    ### Exemple
+    ### Exemple d'utilisation
        ```javascript
         const answerData ={
             surveyId: 1,
@@ -184,20 +223,34 @@ Gère les opérations CRUD pour les réponses.
         };
         await insertAnswer(answerData);
        ```
-      
-- `getAnswerById(answerId: number)`
+
+- `getAnswerById(answerId: int)`
   - Permet récupère une réponse spécifique en utilisant son ID.
-  - Retourne: L'objet représentant la réponse.
+  - Retourne: La réponse spécifique.
+  - answerId: ID de la réponse à récupérer.
+
+   ### Exemple d'utilisation
+     ```javascript
+        const answerId = 1;
+        await getAnswerById(answerId);
+       ```
 
 - `getAllAnswers()`
   - Permet de récupérer toutes les réponses d'une enquête.
+  - Retourne: Toutes les réponses.
 
-- `updateAnswer(answerId: number, updatedAnswerData)`
-  - Permet de mettre à jour une réponse existante.
-  - Retourne: respnse modifiés.
-  - updatedAnswerData: L'Objet contenant les informations (parametre) de mise à jour de la réponse.
+ ### Exemple d'utilisation
+    ```javascript
+        await getAllAnswers();
+    ```
 
-  ### Exemple
+- `updateAnswer(answerId: int, updatedAnswerData)`
+- Met à jour une réponse spécifique en utilisant son ID.
+- Retourne: La réponse mise à jour.
+- answerId: ID de la réponse à mettre à jour.
+- updatedAnswerData: Objet contenant les informations (paramètres) de la réponse mise à jour.
+
+  ### Exemple d'utilisation
 
     ```javascript
       const updatedAnswerData = {
@@ -205,14 +258,20 @@ Gère les opérations CRUD pour les réponses.
         };
         await updateAnswer(1, updatedAnswerData);
     ```
-- `deleteAnswer(answerId: number)`
-  - Permet de supprimer une réponse d'un document.
-  - Retourne: la response supprimés.
+- `deleteAnswer(answerId: int)`
+- Supprime une réponse spécifique en utilisant son ID.
+- Retourne: La réponse supprimée.
+- answerId: ID de la réponse à supprimer.
+ 
+ ### Exemple  d'utilisation
+    ```javascript
+     await deleteAnswer(1);
+    ```
 
 ## Contact
 Mohamed Bakary Soumaré - mohamedsoumare17763@gmail.com
 
-Lien du projet : [https://github.com/MohamedSoumare/abc-survey-app.git]
+Lien du projet :[https://github.com/MohamedSoumare/abc-survey-app.git]
 
 ## License
 

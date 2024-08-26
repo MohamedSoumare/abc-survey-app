@@ -22,19 +22,31 @@ async function insertAnswer(answerData) {
     const surveysCollection = db.collection('surveys');
     const questionsCollection = db.collection('questions');
 
-    // Vérification si le surveyId et le questionId existent
+    // Vérification si le surveyId existe
     const existingSurvey = await surveysCollection.findOne({ surveyId: answerData.surveyId });
     if (!existingSurvey) {
         throw new Error(`Aucune enquête trouvée avec l'ID ${answerData.surveyId}`);
     }
 
+    // Vérification si le questionId existe
     const existingQuestion = await questionsCollection.findOne({ questionId: answerData.questionId });
     if (!existingQuestion) {
         throw new Error(`Aucune question trouvée avec l'ID ${answerData.questionId}`);
     }
 
+    // Générer un nouvel answerId
     const answerId = await getNextAnswerId();
+
+    // Vérifier si un answerId existe déjà
+    const existingAnswer = await answersCollection.findOne({ answerId });
+    if (existingAnswer) {
+        throw new Error(`Une réponse avec l'ID ${answerId} existe déjà.`);
+    }
+
+    // Assigner l'answerId à la réponse
     answerData.answerId = answerId;
+
+    // Insérer la nouvelle réponse
     await answersCollection.insertOne(answerData);
     console.log('Nouvelle réponse créée avec succès');
 }

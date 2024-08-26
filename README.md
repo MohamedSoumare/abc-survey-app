@@ -79,7 +79,8 @@ Gère les opérations CRUD pour les enquêtes(survey).
 
   ### Exemple d'utilisation
     ```javascript
-           const surveyData = {
+            const surveyData = {
+            surveyId: 1,
             name: "Enquête de satisfaction 001",
             description: "Enquête visant à évaluer la satisfaction des clients concernant nos services.",
             createdAt: new Date().toISOString(),
@@ -87,14 +88,14 @@ Gère les opérations CRUD pour les enquêtes(survey).
                 employeeName: "Abdrahmane Sy",
                 employeeRole: "Responsable du service client"
             }
-        };
+          };
         await insertSurvey(surveyData);
     ```
 
 - `getSurveyById(surveyId: int)`
    - Permet de récupérer une enquête par son identifiant.
-    - surveyId: ID de l'enquête à récupérer. 
-  - Retourne: l'enquête trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
+   - surveyId: ID de l'enquête à récupérer. 
+   - Retourne: l'enquête trouvé ou un message d'erreur est affiché si ce n'est pas le cas.
 
  ### Exemple d'utilisation
   ```javascript
@@ -150,7 +151,8 @@ Gère les opérations CRUD pour les questions.
   ###  Exemple d'utilisation
 
   ```javascript
-            const questionData = {
+               const questionData = {
+            questionId: 1,
             surveyId: 1,
             title: "Comment évalueriez-vous notre service ?",
             type: "rating",
@@ -159,7 +161,7 @@ Gère les opérations CRUD pour les questions.
                 maxValue: 5,
                 step: 1
             }
-         };
+        };
         await insertQuestion(questionData);
   ```
 
@@ -217,10 +219,10 @@ Gère les opérations CRUD pour les réponses.
 
 ### Exemple d'utilisation
   ```javascript
-        const answerData ={
-            surveyId: 1,
+        const answerData = {
+            answerId: 1,
             questionId: 1,
-           title : 'Neutre'
+            title : 'Neutre'
         };
         await insertAnswer(answerData);
   ```

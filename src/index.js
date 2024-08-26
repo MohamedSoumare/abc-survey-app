@@ -6,6 +6,7 @@ async function main() {
     try {
              
         const surveyData = {
+            surveyId: 1,
             name: "Enquête de satisfaction 001",
             description: "Enquête visant à évaluer la satisfaction des clients concernant nos services.",
             createdAt: new Date().toISOString(),
@@ -34,6 +35,7 @@ async function main() {
     
         // Create a new question for the survey
         const questionData = {
+            questionId: 1,
             surveyId: 1,
             title: "Comment évalueriez-vous notre service ?",
             type: "rating",
@@ -59,7 +61,7 @@ async function main() {
        
         // Create a new answer to the question
         const answerData = {
-            surveyId: 1,
+            answerId: 1,
             questionId: 1,
            title : 'Neutre'
         };
@@ -75,13 +77,12 @@ async function main() {
         };
         await updateAnswer(1, updatedAnswerData);
 
-        
         // Delete a answer
         await deleteAnswer(1);
-         // Delete a question
-         await deleteQuestion(1);
-         // Delete a survey
-         await deleteSurvey(1);
+        // Delete a question
+        await deleteQuestion(1);
+        // Delete a survey
+        await deleteSurvey(1);
         
     } catch (error) {
         console.error("Erreur de message :", error.message);

@@ -1,7 +1,6 @@
 const connectDB = require('../config/database');
 
 let db = null;
-
 async function connectOnce() {
     if (!db) {
         db = await connectDB();
@@ -9,117 +8,110 @@ async function connectOnce() {
     return db;
 }
 
-async function getNextAnswerId() {
-    await connectOnce();
-    const collection = db.collection('answers');
-    const lastResponse = await collection.find().sort({ answerId: -1 }).limit(1).toArray();
-    return lastResponse.length > 0 ? lastResponse[0].answerId + 1 : 1;
-}
-
 async function insertAnswer(answerData) {
-    await connectOnce();
-    const answersCollection = db.collection('answers');
-    const surveysCollection = db.collection('surveys');
-    const questionsCollection = db.collection('questions');
+    try {
+        await connectOnce();
+        const answersCollection = db.collection('answers');
+        const questionsCollection = db.collection('questions');
 
-    // Vérification si le surveyId existe
-    const existingSurvey = await surveysCollection.findOne({ surveyId: answerData.surveyId });
-    if (!existingSurvey) {
-        throw new Error(`Aucune enquête trouvée avec l'ID ${answerData.surveyId}`);
+        // Vérification si le questionId existe
+        const existingQuestion = await questionsCollection.findOne({ questionId: answerData.questionId });
+        if (!existingQuestion) {
+            throw new Error(`Aucune question trouvée avec l'ID ${answerData.questionId}`);
+        }
+
+        // Vérifier si un answerId existe déjà
+        const existingAnswer = await answersCollection.findOne({ answerId: answerData.answerId });
+        if (existingAnswer) {
+            throw new Error(`Une réponse avec l'ID ${answerData.answerId} existe déjà.`);
+        }
+
+        // Insérer la nouvelle réponse
+        await answersCollection.insertOne(answerData);
+        console.log('Nouvelle réponse créée avec succès');
+    } catch (error) {
+        console.error('Erreur lors de l\'insertion de la réponse:', error.message);
     }
-
-    // Vérification si le questionId existe
-    const existingQuestion = await questionsCollection.findOne({ questionId: answerData.questionId });
-    if (!existingQuestion) {
-        throw new Error(`Aucune question trouvée avec l'ID ${answerData.questionId}`);
-    }
-
-    // Générer un nouvel answerId
-    const answerId = await getNextAnswerId();
-
-    // Vérifier si un answerId existe déjà
-    const existingAnswer = await answersCollection.findOne({ answerId });
-    if (existingAnswer) {
-        throw new Error(`Une réponse avec l'ID ${answerId} existe déjà.`);
-    }
-
-    // Assigner l'answerId à la réponse
-    answerData.answerId = answerId;
-
-    // Insérer la nouvelle réponse
-    await answersCollection.insertOne(answerData);
-    console.log('Nouvelle réponse créée avec succès');
 }
 
 async function getAnswerById(answerId) {
-    await connectOnce();
-    const collection = db.collection('answers');
-    const answer = await collection.findOne({ answerId });
-    if (!answer) {
-        throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
+    try {
+        await connectOnce();
+        const collection = db.collection('answers');
+        const answer = await collection.findOne({ answerId });
+        if (!answer) {
+            throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
+        }
+        console.log('Reponse trouvée :', answer);
+        return answer;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de la réponse par ID:', error.message);
     }
-    return answer;
 }
 
 async function getAllAnswers() {
-    await connectOnce();
-    const collection = db.collection('answers');
-    const answers = await collection.find().sort({ answerId: 1 }).toArray(); 
-    if (answers.length === 0) {
-        console.log('Aucune réponse trouvée.');
-    } else {
-        console.log('Liste des réponses :', answers);
+    try {
+        await connectOnce();
+        const collection = db.collection('answers');
+        const answers = await collection.find().sort({ answerId: 1 }).toArray();
+        if (answers.length === 0) {
+            console.log('Aucune réponse trouvée.');
+        } else {
+            console.log('Liste des réponses :', answers);
+        }
+        return answers;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de toutes les réponses:', error.message);
     }
-    return answers;
 }
 
 async function updateAnswer(answerId, updatedAnswerData) {
-    await connectOnce();
-    const answersCollection = db.collection('answers');
-    const surveysCollection = db.collection('surveys');
-    const questionsCollection = db.collection('questions');
+    try {
+        await connectOnce();
+        const answersCollection = db.collection('answers');
+        const questionsCollection = db.collection('questions');
 
-    // Vérification si l'ID de la réponse, du survey et de la question existent
-    const existingAnswer = await answersCollection.findOne({ answerId });
-    if (!existingAnswer) {
-        throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
-    }
-
-    if (updatedAnswerData.surveyId) {
-        const existingSurvey = await surveysCollection.findOne({ surveyId: updatedAnswerData.surveyId });
-        if (!existingSurvey) {
-            throw new Error(`Aucune enquête trouvée avec l'ID ${updatedAnswerData.surveyId}`);
+        // Vérification si l'ID de la réponse et de la question existent
+        const existingAnswer = await answersCollection.findOne({ answerId });
+        if (!existingAnswer) {
+            throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
         }
-    }
 
-    if (updatedAnswerData.questionId) {
-        const existingQuestion = await questionsCollection.findOne({ questionId: updatedAnswerData.questionId });
-        if (!existingQuestion) {
-            throw new Error(`Aucune question trouvée avec l'ID ${updatedAnswerData.questionId}`);
+        if (updatedAnswerData.questionId) {
+            const existingQuestion = await questionsCollection.findOne({ questionId: updatedAnswerData.questionId });
+            if (!existingQuestion) {
+                throw new Error(`Aucune question trouvée avec l'ID ${updatedAnswerData.questionId}`);
+            }
         }
-    }
 
-    await answersCollection.updateOne({ answerId }, { $set: updatedAnswerData });
-    console.log('Réponse mise à jour avec succès');
+        await answersCollection.updateOne({ answerId }, { $set: updatedAnswerData });
+        console.log('Réponse mise à jour avec succès');
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de la réponse:', error.message);
+    }
 }
 
 async function deleteAnswer(answerId) {
-    await connectOnce();
-    const collection = db.collection('answers');
+    try {
+        await connectOnce();
+        const collection = db.collection('answers');
 
-    // Vérification si l'ID de la réponse existe
-    const existingAnswer = await collection.findOne({ answerId });
-    if (!existingAnswer) {
-        throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
+        // Vérification si l'ID de la réponse existe
+        const existingAnswer = await collection.findOne({ answerId });
+        if (!existingAnswer) {
+            throw new Error(`Aucune réponse trouvée avec l'ID ${answerId}`);
+        }
+        await collection.deleteOne({ answerId });
+        console.log('Réponse supprimée avec succès');
+    } catch (error) {
+        console.error('Erreur lors de la suppression de la réponse:', error.message);
     }
-    await collection.deleteOne({ answerId });
-    console.log('Réponse supprimée avec succès');
 }
 
 module.exports = {
     insertAnswer,
     getAnswerById,
-    getAllAnswers, 
+    getAllAnswers,
     updateAnswer,
     deleteAnswer
 };
